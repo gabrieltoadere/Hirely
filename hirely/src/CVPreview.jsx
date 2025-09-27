@@ -1,9 +1,33 @@
 import './CVPreview.css';
 
-const CVPreview = ({ template, cvData }) => {
-  // Apply template-specific CSS classes
+const CVPreview = ({ template, cvData, customization }) => {
+  // Apply template-specific CSS classes and custom styles
   const getTemplateClass = () => {
     return `cv-preview template-${template.id}`;
+  };
+
+  const getCustomStyles = () => {
+    if (!customization) {
+      return {
+        '--primary-color': template.defaultColors.primary,
+        '--secondary-color': template.defaultColors.secondary,
+        '--background-color': template.defaultColors.background,
+        '--text-color': template.defaultColors.text || '#374151',
+        '--heading-font': template.defaultFonts.heading,
+        '--body-font': template.defaultFonts.body,
+        '--font-size': '16px'
+      };
+    }
+
+    return {
+      '--primary-color': customization.colors?.primary || template.defaultColors.primary,
+      '--secondary-color': customization.colors?.secondary || template.defaultColors.secondary,
+      '--background-color': customization.colors?.background || template.defaultColors.background,
+      '--text-color': customization.colors?.text || template.defaultColors.text || '#374151',
+      '--heading-font': customization.fonts?.heading || template.defaultFonts.heading,
+      '--body-font': customization.fonts?.body || template.defaultFonts.body,
+      '--font-size': `${customization.fontSize || 16}px`
+    };
   };
 
   // Template-specific content rendering
@@ -88,13 +112,37 @@ const CVPreview = ({ template, cvData }) => {
           </div>
         );
       
+      case 'portfolio':
+        return (
+          <div className="preview-section portfolio-section">
+            <h2>Portfolio</h2>
+            <p>Portfolio items would be displayed here...</p>
+          </div>
+        );
+      
+      case 'references':
+        return (
+          <div className="preview-section references-section">
+            <h2>References</h2>
+            <p>References available upon request.</p>
+          </div>
+        );
+      
       default:
-        return null;
+        return (
+          <div className="preview-section">
+            <h2>{section.charAt(0).toUpperCase() + section.slice(1)}</h2>
+            <p>Content for {section} section...</p>
+          </div>
+        );
     }
   };
 
   return (
-    <div className={getTemplateClass()}>
+    <div 
+      className={getTemplateClass()} 
+      style={getCustomStyles()}
+    >
       <div className="preview-content">
         {template.sections.map(section => (
           <div key={section} className={`section-${section}`}>

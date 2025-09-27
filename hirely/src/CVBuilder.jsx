@@ -1,8 +1,9 @@
-// CVBuilder.jsx
+// CVBuilder.jsx (updated)
 import { useState } from 'react';
 import './CVBuilder.css';
 import CVForm from './CVForm';
 import CVPreview from './CVPreview';
+import CustomizationPanel from './CustomizationPanel';
 import TemplateSelector from './templateSelector';
 
 const CVBuilder = () => {
@@ -13,10 +14,17 @@ const CVBuilder = () => {
     education: [],
     skills: []
   });
+  const [customization, setCustomization] = useState({});
   const [currentStep, setCurrentStep] = useState('template-selection');
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
+    // Initialize customization with template defaults
+    setCustomization({
+      colors: { ...template.defaultColors },
+      fonts: { ...template.defaultFonts },
+      fontSize: 16
+    });
     setCurrentStep('form-filling');
   };
 
@@ -43,15 +51,26 @@ const CVBuilder = () => {
       </div>
       
       <div className="builder-content">
-        <CVForm 
-          template={selectedTemplate}
-          cvData={cvData}
-          setCvData={setCvData}
-        />
-        <CVPreview 
-          template={selectedTemplate}
-          cvData={cvData}
-        />
+        <div className="builder-sidebar">
+          <CVForm 
+            template={selectedTemplate}
+            cvData={cvData}
+            setCvData={setCvData}
+          />
+          <CustomizationPanel 
+            template={selectedTemplate}
+            customization={customization}
+            onCustomizationChange={setCustomization}
+          />
+        </div>
+        
+        <div className="builder-preview">
+          <CVPreview 
+            template={selectedTemplate}
+            cvData={cvData}
+            customization={customization}
+          />
+        </div>
       </div>
     </div>
   );

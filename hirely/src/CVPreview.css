@@ -1,37 +1,56 @@
-/* CVPreview.css */
 
-/* Base Preview Styles */
-.cv-preview {
-  width: 100%;
-  min-height: 1000px;
-  background: white;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
+/* Update your CSS to use variables */
+.template-modern {
+  font-family: var(--body-font, 'Segoe UI', sans-serif);
+  background: var(--background-color, #ffffff);
 }
 
-.preview-content {
-  padding: 40px;
+.template-modern .name {
+  color: var(--primary-color, #2563eb);
+  font-family: var(--heading-font, 'Segoe UI', sans-serif);
+}
+
+.template-modern .preview-section h2 {
+  color: var(--primary-color, #2563eb);
+}
+
+.template-modern .skill-tag {
+  background: var(--primary-color, #2563eb);
+}
+
+/* Add this to base styles */
+.cv-preview {
+  font-size: var(--font-size, 16px);
+}
+
+
+/* CVPreview.css */
+
+/* Add CSS variables at the top */
+.cv-preview {
+  font-size: var(--font-size, 16px);
 }
 
 /* ===== MODERN TEMPLATE ===== */
 .template-modern {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #ffffff;
+  font-family: var(--body-font, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
+  background: var(--background-color, #ffffff);
 }
 
 .template-modern .preview-header {
   text-align: center;
-  border-bottom: 3px solid #2563eb;
+  border-bottom: 3px solid var(--primary-color, #2563eb);
   padding-bottom: 30px;
   margin-bottom: 30px;
 }
 
 .template-modern .name {
-  color: #2563eb;
+  color: var(--primary-color, #2563eb);
   font-size: 2.8em;
   margin: 0 0 10px 0;
   font-weight: 300;
   letter-spacing: 1px;
+  font-family: var(--heading-font, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
 }
 
 .template-modern .title {
@@ -51,12 +70,13 @@
 }
 
 .template-modern .preview-section h2 {
-  color: #2563eb;
+  color: var(--primary-color, #2563eb);
   border-bottom: 2px solid #e5e7eb;
   padding-bottom: 8px;
   margin-bottom: 20px;
   font-size: 1.5em;
   font-weight: 600;
+  font-family: var(--heading-font, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
 }
 
 .template-modern .experience-item,
@@ -78,10 +98,11 @@
   color: #333;
   font-size: 1.2em;
   font-weight: 600;
+  font-family: var(--heading-font, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
 }
 
 .template-modern .dates {
-  color: #2563eb;
+  color: var(--primary-color, #2563eb);
   font-weight: 500;
 }
 
@@ -99,7 +120,7 @@
 }
 
 .template-modern .skill-tag {
-  background: #2563eb;
+  background: var(--primary-color, #2563eb);
   color: white;
   padding: 8px 16px;
   border-radius: 20px;
@@ -108,12 +129,12 @@
 
 /* ===== CREATIVE TEMPLATE ===== */
 .template-creative {
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  font-family: var(--body-font, 'Arial', sans-serif);
+  background: linear-gradient(135deg, #f8fafc 0%, var(--background-color, #ffffff) 100%);
 }
 
 .template-creative .preview-header {
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  background: linear-gradient(135deg, var(--primary-color, #7c3aed) 0%, var(--secondary-color, #5b21b6) 100%);
   color: white;
   padding: 40px;
   margin: -40px -40px 30px -40px;
@@ -125,6 +146,7 @@
   margin: 0 0 10px 0;
   font-weight: 700;
   letter-spacing: 2px;
+  font-family: var(--heading-font, 'Arial', sans-serif);
 }
 
 .template-creative .title {
@@ -142,7 +164,7 @@
 }
 
 .template-creative .preview-section {
-  background: white;
+  background: var(--background-color, white);
   padding: 25px;
   margin-bottom: 20px;
   border-radius: 10px;
@@ -150,12 +172,13 @@
 }
 
 .template-creative .preview-section h2 {
-  color: #7c3aed;
+  color: var(--primary-color, #7c3aed);
   margin: 0 0 20px 0;
   font-size: 1.4em;
   font-weight: 700;
-  border-left: 4px solid #7c3aed;
+  border-left: 4px solid var(--primary-color, #7c3aed);
   padding-left: 15px;
+  font-family: var(--heading-font, 'Arial', sans-serif);
 }
 
 .template-creative .experience-header,
@@ -168,7 +191,7 @@
 }
 
 .template-creative .dates {
-  background: #7c3aed;
+  background: var(--primary-color, #7c3aed);
   color: white;
   padding: 4px 12px;
   border-radius: 15px;
@@ -184,7 +207,7 @@
 
 .template-creative .skill-tag {
   background: #f3f4f6;
-  color: #7c3aed;
+  color: var(--primary-color, #7c3aed);
   padding: 10px;
   border-radius: 8px;
   text-align: center;
@@ -194,14 +217,14 @@
 
 /* ===== CLASSIC TEMPLATE ===== */
 .template-classic {
-  font-family: 'Times New Roman', Times, serif;
-  background: #ffffff;
-  color: #000;
+  font-family: var(--body-font, 'Times New Roman', Times, serif);
+  background: var(--background-color, #ffffff);
+  color: var(--text-color, #000);
 }
 
 .template-classic .preview-header {
   text-align: left;
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid var(--primary-color, #000);
   padding-bottom: 20px;
   margin-bottom: 30px;
 }
@@ -212,6 +235,7 @@
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
+  font-family: var(--heading-font, 'Times New Roman', Times, serif);
 }
 
 .template-classic .title {
@@ -228,13 +252,14 @@
 }
 
 .template-classic .preview-section h2 {
-  color: #000;
+  color: var(--primary-color, #000);
   margin: 0 0 15px 0;
   font-size: 1.3em;
   font-weight: bold;
   text-transform: uppercase;
-  border-bottom: 1px solid #000;
+  border-bottom: 1px solid var(--primary-color, #000);
   padding-bottom: 5px;
+  font-family: var(--heading-font, 'Times New Roman', Times, serif);
 }
 
 .template-classic .experience-item,
@@ -274,8 +299,8 @@
 
 /* ===== MINIMAL TEMPLATE ===== */
 .template-minimal {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  background: #ffffff;
+  font-family: var(--body-font, 'Helvetica Neue', Arial, sans-serif);
+  background: var(--background-color, #ffffff);
   color: #333;
 }
 
@@ -293,6 +318,7 @@
   margin: 0 0 5px 0;
   font-weight: 300;
   letter-spacing: 3px;
+  font-family: var(--heading-font, 'Helvetica Neue', Arial, sans-serif);
 }
 
 .template-minimal .title {
@@ -324,6 +350,7 @@
   color: #666;
   border-bottom: 1px solid #eee;
   padding-bottom: 5px;
+  font-family: var(--heading-font, 'Helvetica Neue', Arial, sans-serif);
 }
 
 .template-minimal .experience-item,

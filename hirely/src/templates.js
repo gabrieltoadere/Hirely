@@ -8,7 +8,17 @@ export const CV_TEMPLATES = [
     category: 'Professional',
     sections: ['header', 'summary', 'experience', 'education', 'skills'],
     layout: 'single-column',
-    colors: ['#2563eb', '#1e40af'],
+    defaultColors: {
+      primary: '#2563eb',
+      secondary: '#1e40af',
+      text: '#374151',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Segoe UI, sans-serif',
+      body: 'Segoe UI, sans-serif'
+    },
+    customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
     isPopular: true
   },
   {
@@ -19,7 +29,18 @@ export const CV_TEMPLATES = [
     category: 'Creative',
     sections: ['header', 'portfolio', 'skills', 'experience', 'education'],
     layout: 'two-column',
-    colors: ['#7c3aed', '#5b21b6']
+    defaultColors: {
+      primary: '#7c3aed',
+      secondary: '#5b21b6',
+      text: '#374151',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Arial, sans-serif',
+      body: 'Arial, sans-serif'
+    },
+    customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
+    isPopular: false
   },
   {
     id: 'classic',
@@ -29,7 +50,18 @@ export const CV_TEMPLATES = [
     category: 'Traditional',
     sections: ['header', 'experience', 'education', 'skills', 'references'],
     layout: 'single-column',
-    colors: ['#374151', '#111827']
+    defaultColors: {
+      primary: '#374151',
+      secondary: '#111827',
+      text: '#000000',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Times New Roman, serif',
+      body: 'Times New Roman, serif'
+    },
+    customizable: ['primaryColor', 'textColor', 'headingFont', 'bodyFont', 'backgroundColor'],
+    isPopular: true
   },
   {
     id: 'minimal',
@@ -39,6 +71,59 @@ export const CV_TEMPLATES = [
     category: 'Minimalist',
     sections: ['header', 'experience', 'education'],
     layout: 'single-column',
-    colors: ['#000000', '#666666']
+    defaultColors: {
+      primary: '#000000',
+      secondary: '#666666',
+      text: '#333333',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Helvetica Neue, Arial, sans-serif',
+      body: 'Helvetica Neue, Arial, sans-serif'
+    },
+    customizable: ['primaryColor', 'textColor', 'headingFont', 'bodyFont', 'backgroundColor'],
+    isPopular: false
+  },
+  {
+    id: 'executive',
+    name: 'Executive',
+    description: 'Sophisticated design for senior-level professionals',
+    thumbnail: '/images/templates/executive-preview.jpg',
+    category: 'Professional',
+    sections: ['header', 'summary', 'experience', 'education', 'skills', 'achievements'],
+    layout: 'single-column',
+    defaultColors: {
+      primary: '#059669',
+      secondary: '#047857',
+      text: '#1f2937',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Georgia, serif',
+      body: 'Georgia, serif'
+    },
+    customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
+    isPopular: false
+  },
+  {
+    id: 'technical',
+    name: 'Technical',
+    description: 'Structured layout ideal for engineers and developers',
+    thumbnail: '/images/templates/technical-preview.jpg',
+    category: 'Professional',
+    sections: ['header', 'summary', 'skills', 'experience', 'education', 'projects'],
+    layout: 'two-column',
+    defaultColors: {
+      primary: '#dc2626',
+      secondary: '#b91c1c',
+      text: '#374151',
+      background: '#ffffff'
+    },
+    defaultFonts: {
+      heading: 'Courier New, monospace',
+      body: 'Arial, sans-serif'
+    },
+    customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
+    isPopular: true
   }
 ];

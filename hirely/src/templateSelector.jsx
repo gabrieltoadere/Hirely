@@ -9,19 +9,19 @@ const TemplateSelector = ({ onTemplateSelect, currentTemplate }) => {
     const [imageError, setImageError] = React.useState(false);
 
     if (imageError) {
-      return (
-        <div 
-          className="template-thumbnail-placeholder"
-          style={{ 
-            background: `linear-gradient(135deg, ${template.colors[0]}, ${template.colors[1]})` 
-          }}
-        >
-          <div className="placeholder-content">
-            <span className="template-initial">{template.name.charAt(0)}</span>
-            <span className="template-name">{template.name}</span>
-          </div>
-        </div>
-      );
+        return (
+            <div
+                className="template-thumbnail-placeholder"
+                style={{
+                    background: `linear-gradient(135deg, ${template.defaultColors.primary}, ${template.defaultColors.secondary})`
+                }}
+            >
+                <div className="placeholder-content">
+                    <span className="template-initial">{template.name.charAt(0)}</span>
+                    <span className="template-name">{template.name}</span>
+                </div>
+            </div>
+        );
     }
 
     return (
