@@ -1,8 +1,8 @@
-import '../App.css';
 
-
-const Main = () => {
+const Layout = () => {
     return (
         <div className=''></div>
     )
 }
+
+export default Layout;

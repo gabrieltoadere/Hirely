@@ -1,15 +1,22 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
-import Login from './pages/login.js';
-
+import CVBuilder from './CVBuilder';
 
 function App() {
   return (
-    <BrowserRouter>
-    <Routes>
-      <Route path='/' element={<Login />}></Route>
-    </Routes>
-    </BrowserRouter>
+    <div className="App">
+      <header className="App-header">
+        <h1>CV Builder</h1>
+        <p>Create your professional resume in minutes</p>
+      </header>
+      
+      <main>
+        <CVBuilder />
+      </main>
+      
+      <footer>
+        <p>&copy; 2024 CV Builder. All rights reserved.</p>
+      </footer>
+    </div>
   );
 }
 

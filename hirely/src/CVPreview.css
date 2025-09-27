@@ -1,0 +1,178 @@
+/* Base Preview Styles */
+.cv-preview {
+  width: 100%;
+  max-width: 800px;
+  min-height: 1000px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+/* Modern Template Styles */
+.modern-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modern-header {
+  text-align: center;
+  border-bottom: 3px solid #2563eb;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.modern-header h1 {
+  color: #2563eb;
+  margin: 0;
+  font-size: 2.5em;
+}
+
+.modern-header p {
+  color: #666;
+  font-size: 1.2em;
+  margin: 10px 0;
+}
+
+.modern-header .contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.modern-section {
+  margin-bottom: 25px;
+}
+
+.modern-section h2 {
+  color: #2563eb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+
+/* Creative Template Styles */
+.creative-container {
+  font-family: 'Arial', sans-serif;
+  background: #f8fafc;
+}
+
+.creative-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: white;
+  padding: 30px;
+  margin: -40px -40px 30px -40px;
+}
+
+.creative-header h1 {
+  margin: 0;
+  font-size: 2.8em;
+}
+
+.creative-section {
+  background: white;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Classic Template Styles */
+.classic-container {
+  font-family: 'Times New Roman', Times, serif;
+}
+
+.classic-header {
+  text-align: left;
+  border-bottom: 2px solid #374151;
+  padding-bottom: 15px;
+}
+
+.classic-header h1 {
+  color: #374151;
+  margin: 0;
+  font-size: 2.2em;
+  text-transform: uppercase;
+}
+
+.classic-section h2 {
+  color: #374151;
+  text-transform: uppercase;
+  font-size: 1.3em;
+  margin-bottom: 10px;
+}
+
+/* Minimal Template Styles */
+.minimal-container {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: white;
+}
+
+.minimal-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.minimal-header h1 {
+  font-weight: 300;
+  font-size: 2.5em;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.minimal-section {
+  margin-bottom: 30px;
+}
+
+.minimal-section h2 {
+  font-weight: 300;
+  font-size: 1.4em;
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+}
+
+/* Common Elements */
+.contact-info span {
+  font-size: 0.9em;
+}
+
+.experience-item, .education-item {
+  margin-bottom: 15px;
+}
+
+.experience-item h3, .education-item h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.1em;
+}
+
+.company, .institution {
+  color: #666;
+  font-style: italic;
+  margin: 5px 0;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.skill-tag {
+  background: #e5e7eb;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.9em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .cv-preview {
+    padding: 20px;
+    min-height: auto;
+  }
+  
+  .modern-header .contact-info {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
