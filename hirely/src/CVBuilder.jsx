@@ -1,10 +1,201 @@
-// CVBuilder.jsx
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './CVBuilder.css';
-import CVForm from './CVForm';
 import CVPreview from './CVPreview';
 import CustomizationPanel from './CustomizationPanel';
+import PageManager from './PageManager';
+import SectionManager from './SectionManager';
 import TemplateSelector from './templateSelector';
+
+// Print View Component
+const PrintView = ({ cvData, template, customization, onClose }) => {
+  const printContainerRef = useRef(null);
+
+  // Add a print-specific class to body when component mounts
+  useEffect(() => {
+    document.body.classList.add('print-active');
+    
+    return () => {
+      document.body.classList.remove('print-active');
+    };
+  }, []);
+
+  return (
+    <div 
+      ref={printContainerRef}
+      id="cv-print-container" 
+      className="cv-print-container"
+      style={{ 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        width: '100vw', 
+        height: '100vh', 
+        background: 'white', 
+        zIndex: 10000, 
+        padding: '20px', 
+        overflow: 'auto',
+        boxSizing: 'border-box'
+      }}
+    >
+      {/* Close button for preview */}
+      <button 
+        onClick={onClose}
+        className="print-close-button"
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          background: '#ff4444',
+          color: 'white',
+          border: 'none',
+          padding: '10px 15px',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          zIndex: 10001,
+          fontSize: '16px',
+          fontWeight: 'bold'
+        }}
+      >
+        ✕ Close Preview
+      </button>
+      
+      <div className="print-pages-container" style={{ 
+        width: '100%', 
+        maxWidth: '210mm', 
+        margin: '0 auto',
+        paddingTop: '60px'
+      }}>
+        {cvData.pages.map((page, pageIndex) => (
+          <div 
+            key={page.id}
+            className="cv-page print-page"
+            style={{
+              width: '210mm',
+              minHeight: '297mm',
+              background: 'white',
+              margin: '0 auto 10mm auto',
+              padding: '15mm',
+              boxShadow: '0 0 20px rgba(0,0,0,0.2)',
+              boxSizing: 'border-box'
+            }}
+          >
+            <CVPreview 
+              template={template}
+              cvData={cvData}
+              customization={customization}
+              currentPage={page.id}
+              isPrintMode={true}
+            />
+            {/* Page number indicator (hidden in print) */}
+            <div className="page-number" style={{ 
+              position: 'absolute', 
+              top: '5mm', 
+              right: '15mm', 
+              fontSize: '10pt', 
+              color: '#666',
+              fontFamily: 'Arial, sans-serif'
+            }}>
+              Page {pageIndex + 1} of {cvData.pages.length}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Move styles to a separate style tag for better control */}
+      <style>{`
+        /* Print styles */
+        @media print {
+          /* Reset everything for print */
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          
+          @page {
+            margin: 0 !important;
+            size: A4 portrait;
+          }
+          
+          body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            overflow: visible !important;
+          }
+          
+          /* Hide everything except print container */
+          body > *:not(.cv-print-container) {
+            display: none !important;
+          }
+          
+          /* Show print container content */
+          .cv-print-container {
+            all: initial !important;
+            display: block !important;
+            position: relative !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+          
+          /* Hide close button in print */
+          .print-close-button {
+            display: none !important;
+          }
+          
+          /* Style pages for print */
+          .print-pages-container {
+            all: initial !important;
+            display: block !important;
+            width: 100% !important;
+          }
+          
+          .cv-page {
+                display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            width: 210mm !important;
+            min-height: 297mm !important;
+            padding: 15mm !important;
+            margin: 0 auto !important;
+            page-break-after: always;
+            box-shadow: none !important;
+            border: none !important;
+            background: white !important;
+          }
+          
+          .cv-page:last-child {
+            page-break-after: auto;
+          }
+          
+          /* Hide page numbers in print */
+          .page-number {
+            display: none !important;
+          }
+        }
+        
+        /* Screen styles for print preview */
+        @media screen {
+          .cv-print-container {
+            display: block !important;
+          }
+          
+          .cv-page {
+            display: block !important;
+            visibility: visible !important;
+          }
+          
+          body.print-active {
+            overflow: hidden !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
 
 const CVBuilder = () => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -12,10 +203,26 @@ const CVBuilder = () => {
     personalInfo: {},
     experience: [],
     education: [],
-    skills: []
+    skills: [],
+    projects: [],
+    languages: [],
+    certifications: [],
+    achievements: [],
+    publications: [],
+    volunteer: [],
+    interests: [],
+    pages: [
+      {
+        id: 1,
+        sections: ['header', 'summary', 'experience', 'education', 'skills']
+      }
+    ]
   });
   const [customization, setCustomization] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentStep, setCurrentStep] = useState('template-selection');
+  const [showPrintView, setShowPrintView] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
@@ -31,158 +238,38 @@ const CVBuilder = () => {
     setCurrentStep('template-selection');
   };
 
-  // Updated export function in CVBuilder.jsx
-const exportToPDF = () => {
-  const previewElement = document.querySelector('.cv-preview');
-  
-  if (!previewElement) {
-    alert('CV preview not found. Please try again.');
-    return;
-  }
+  const exportToPDF = () => {
+    setShowPrintView(true);
+    setIsPrinting(true);
+  };
 
-  // Create a clone of the preview for printing
-  const printClone = previewElement.cloneNode(true);
-  
-  // Style the clone for printing with proper A4 dimensions
-  printClone.style.cssText = `
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 210mm !important;  /* A4 width */
-    min-height: 297mm !important; /* A4 height */
-    background: white !important;
-    z-index: 9999 !important;
-    margin: 0 !important;
-    padding: 15mm !important;  /* Reduced from 20mm */
-    box-shadow: none !important;
-    transform: none !important;
-    overflow: visible !important;
-    visibility: visible !important;
-    display: block !important;
-    box-sizing: border-box !important;
-  `;
+  const handleClosePrintView = () => {
+    setShowPrintView(false);
+    setIsPrinting(false);
+  };
 
-  printClone.classList.add('print-mode');
+  // Handle the actual printing after the component renders
+  useEffect(() => {
+    if (isPrinting && showPrintView) {
+      // Wait longer for everything to render completely
+      const printTimer = setTimeout(() => {
+        console.log('Starting print...');
+        window.print();
+        
+        // Don't close immediately - let user handle the print dialog
+        setTimeout(() => {
+          setIsPrinting(false);
+        }, 2000);
+      }, 1500); // Increased delay for better rendering
 
-  // Create a print container
-  const printContainer = document.createElement('div');
-  printContainer.id = 'cv-print-container';
-  printContainer.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: white;
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 10mm;  /* Reduced container padding */
-    overflow: auto;
-    box-sizing: border-box;
-  `;
+      return () => clearTimeout(printTimer);
+    }
+  }, [isPrinting, showPrintView]);
 
-  printContainer.appendChild(printClone);
-  document.body.appendChild(printContainer);
-
-  // Add optimized print styles
-  const printStyles = `
-    <style>
-      @media print {
-        body * {
-          visibility: hidden;
-        }
-        #cv-print-container,
-        #cv-print-container * {
-          visibility: visible;
-        }
-        #cv-print-container {
-          position: absolute !important;
-          left: 0 !important;
-          top: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          padding: 0 !important;
-          margin: 0 !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: flex-start !important;
-        }
-        .cv-preview.print-mode {
-          width: 210mm !important;
-          min-height: 297mm !important;
-          box-shadow: none !important;
-          margin: 0 !important;
-          padding: 10mm !important;  /* Even less padding for print */
-          transform: scale(1) !important;
-        }
-        
-        /* Optimize CV content for print */
-        .cv-preview.print-mode .preview-content {
-          padding: 0 !important;
-          width: 100% !important;
-        }
-        
-        /* Reduce font sizes for better fit */
-        .cv-preview.print-mode .name {
-          font-size: 24pt !important;
-        }
-        
-        .cv-preview.print-mode .title {
-          font-size: 14pt !important;
-        }
-        
-        .cv-preview.print-mode h2 {
-          font-size: 16pt !important;
-        }
-        
-        .cv-preview.print-mode h3 {
-          font-size: 12pt !important;
-        }
-        
-        .cv-preview.print-mode p {
-          font-size: 10pt !important;
-        }
-        
-        /* Ensure good page breaks */
-        .preview-section {
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-      }
-      
-      /* Screen preview styles */
-      .cv-preview.print-mode {
-        transform: scale(0.8) !important; /* Scale down for screen preview */
-        width: 210mm !important;
-        min-height: 297mm !important;
-        background: white !important;
-        border: 1px solid #ccc !important;
-      }
-    </style>
-  `;
-
-  document.head.insertAdjacentHTML('beforeend', printStyles);
-
-  // Trigger print
-  setTimeout(() => {
+  // Also add a manual print button inside the print view for testing
+  const handleManualPrint = () => {
     window.print();
-    
-    // Clean up
-    setTimeout(() => {
-      const printContainer = document.getElementById('cv-print-container');
-      if (printContainer) {
-        printContainer.remove();
-      }
-      
-      const addedStyles = document.querySelector('style');
-      if (addedStyles && addedStyles.innerHTML.includes('@media print')) {
-        addedStyles.remove();
-      }
-    }, 500);
-  }, 500);
-};
+  };
 
   if (currentStep === 'template-selection') {
     return (
@@ -195,25 +282,116 @@ const exportToPDF = () => {
 
   return (
     <div className="cv-builder">
+      {/* Print View Overlay */}
+      {showPrintView && (
+        <PrintView 
+          cvData={cvData}
+          template={selectedTemplate}
+          customization={customization}
+          onClose={handleClosePrintView}
+        />
+      )}
+      
       <div className="builder-header">
         <button onClick={handleBackToTemplates} className="back-button">
           ← Change Template
         </button>
-        <h2>Editing: {selectedTemplate.name} Template</h2>
+        <h2>Editing: {selectedTemplate?.name || 'Selected'} Template</h2>
         <button onClick={exportToPDF} className="export-button">
           📄 Export PDF
+        </button>
+        
+        {/* Debug button - manually trigger print without auto-open */}
+        <button 
+          onClick={() => setShowPrintView(true)}
+          style={{marginLeft: '10px', background: '#666'}}
+        >
+          👁️ Preview Only
         </button>
       </div>
       
       <div className="builder-content">
         <div className="builder-sidebar">
           <div className="cv-form-container">
-            <h3>Fill in Your Information</h3>
-            <CVForm 
+            <h3>Build Your CV</h3>
+            
+            <PageManager 
+              cvData={cvData}
+              setCvData={setCvData}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
+            
+            <SectionManager 
               template={selectedTemplate}
               cvData={cvData}
               setCvData={setCvData}
+              currentPage={currentPage}
             />
+            
+            <div className="personal-info-section">
+              <h4>Personal Information</h4>
+              <div className="form-group">
+                <label>Full Name</label>
+                <input 
+                  type="text" 
+                  value={cvData.personalInfo?.name || ''}
+                  onChange={(e) => setCvData(prev => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, name: e.target.value }
+                  }))}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="form-group">
+                <label>Professional Title</label>
+                <input 
+                  type="text" 
+                  value={cvData.personalInfo?.title || ''}
+                  onChange={(e) => setCvData(prev => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, title: e.target.value }
+                  }))}
+                  placeholder="Software Engineer"
+                />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input 
+                  type="email" 
+                  value={cvData.personalInfo?.email || ''}
+                  onChange={(e) => setCvData(prev => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, email: e.target.value }
+                  }))}
+                  placeholder="john.doe@example.com"
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone</label>
+                <input 
+                  type="tel" 
+                  value={cvData.personalInfo?.phone || ''}
+                  onChange={(e) => setCvData(prev => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, phone: e.target.value }
+                  }))}
+                  placeholder="(123) 456-7890"
+                />
+              </div>
+              <div className="form-group">
+                <label>Location</label>
+                <input 
+                  type="text" 
+                  value={cvData.personalInfo?.location || ''}
+                  onChange={(e) => setCvData(prev => ({
+                    ...prev,
+                    personalInfo: { ...prev.personalInfo, location: e.target.value }
+                  }))}
+                  placeholder="City, Country"
+                />
+              </div>
+            </div>
           </div>
           
           <div className="customization-container">
@@ -231,6 +409,7 @@ const exportToPDF = () => {
               template={selectedTemplate}
               cvData={cvData}
               customization={customization}
+              currentPage={currentPage}
             />
           </div>
         </div>

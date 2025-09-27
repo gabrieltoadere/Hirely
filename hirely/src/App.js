@@ -1,12 +1,12 @@
 import './App.css';
 import CVBuilder from './CVBuilder';
+import logo from './logos/mainLogo.png';
 
 function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>CV Builder</h1>
-        <p>Create your professional resume in minutes</p>
+        <img className='header-logo' src={logo} alt=''></img>
       </header>
       
       <main>

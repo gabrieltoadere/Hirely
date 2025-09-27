@@ -1,0 +1,85 @@
+/* PageManager.css */
+.page-manager {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.page-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.page-manager-header h4 {
+  margin: 0;
+  color: #374151;
+}
+
+.add-page-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.add-page-btn:hover {
+  background: #059669;
+}
+
+.pages-list {
+  space-y: 0.5rem;
+}
+
+.page-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.page-item:hover {
+  background: #f3f4f6;
+}
+
+.page-item.active {
+  border-color: #3b82f6;
+  background: #f0f9ff;
+}
+
+.page-number {
+  font-weight: 600;
+  color: #374151;
+}
+
+.page-sections-count {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.remove-page-btn {
+  background: #fef2f2;
+  color: #dc2626;
+  border: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.remove-page-btn:hover {
+  background: #fee2e2;
+}

@@ -356,3 +356,57 @@ body.printing .preview-content {
   width: calc(100% - 40mm);
   height: calc(100% - 40mm);
 }
+
+/* Add to CVBuilder.css */
+.personal-info-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.personal-info-section h4 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Ensure A4 ratio is maintained */
+.cv-preview-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cv-preview {
+  aspect-ratio: 1 / 1.414; /* A4 ratio */
+  max-height: 80vh;
+}

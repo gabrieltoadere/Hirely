@@ -21,15 +21,42 @@
 /* Add this to base styles */
 .cv-preview {
   font-size: var(--font-size, 16px);
+  width: 100%;
+  min-height: 1000px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  /* A4 aspect ratio: 210mm x 297mm = 1:1.414 */
+  aspect-ratio: 1 / 1.414;
+  max-height: 80vh; /* Prevent it from being too tall */
+
+}
+.preview-content {
+  padding: 40px;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure content fills the A4 ratio */
+.cv-preview .preview-section {
+  flex: 1;
+}
+
+/* Add some spacing between sections */
+.preview-section {
+  margin-bottom: 1.5rem;
+}
+
+.preview-section:last-child {
+  margin-bottom: 0;
 }
 
 
 /* CVPreview.css */
 
 /* Add CSS variables at the top */
-.cv-preview {
-  font-size: var(--font-size, 16px);
-}
 
 /* ===== MODERN TEMPLATE ===== */
 .template-modern {
@@ -405,4 +432,56 @@
   .template-minimal .name {
     font-size: 2em;
   }
+}
+
+/* Add to CVPreview.css */
+.page-indicator {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 4px;
+}
+
+/* New section styles for additional content types */
+.projects-section .project-item,
+.languages-section .language-item,
+.certifications-section .certification-item,
+.achievements-section .achievement-item,
+.publications-section .publication-item,
+.volunteer-section .volunteer-item {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.languages-list,
+.interests-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.language-item,
+.interest-tag {
+  background: #f3f4f6;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.project-header,
+.volunteer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.technologies {
+  font-style: italic;
+  color: #6b7280;
+  font-size: 0.9rem;
 }

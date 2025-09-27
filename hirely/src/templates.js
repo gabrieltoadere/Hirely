@@ -19,7 +19,7 @@ export const CV_TEMPLATES = [
       body: 'Segoe UI, sans-serif'
     },
     customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
-    isPopular: true
+    isPopular: false
   },
   {
     id: 'creative',
@@ -61,7 +61,7 @@ export const CV_TEMPLATES = [
       body: 'Times New Roman, serif'
     },
     customizable: ['primaryColor', 'textColor', 'headingFont', 'bodyFont', 'backgroundColor'],
-    isPopular: true
+    isPopular: false
   },
   {
     id: 'minimal',
@@ -124,6 +124,6 @@ export const CV_TEMPLATES = [
       body: 'Arial, sans-serif'
     },
     customizable: ['primaryColor', 'secondaryColor', 'headingFont', 'bodyFont', 'backgroundColor'],
-    isPopular: true
+    isPopular: false
   }
 ];
