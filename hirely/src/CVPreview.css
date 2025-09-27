@@ -1,178 +1,381 @@
+/* CVPreview.css */
+
 /* Base Preview Styles */
 .cv-preview {
   width: 100%;
-  max-width: 800px;
   min-height: 1000px;
   background: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+.preview-content {
   padding: 40px;
 }
 
-/* Modern Template Styles */
-.modern-container {
+/* ===== MODERN TEMPLATE ===== */
+.template-modern {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #ffffff;
 }
 
-.modern-header {
+.template-modern .preview-header {
   text-align: center;
   border-bottom: 3px solid #2563eb;
-  padding-bottom: 20px;
+  padding-bottom: 30px;
   margin-bottom: 30px;
 }
 
-.modern-header h1 {
+.template-modern .name {
   color: #2563eb;
-  margin: 0;
-  font-size: 2.5em;
-}
-
-.modern-header p {
-  color: #666;
-  font-size: 1.2em;
-  margin: 10px 0;
-}
-
-.modern-header .contact-info {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.modern-section {
-  margin-bottom: 25px;
-}
-
-.modern-section h2 {
-  color: #2563eb;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 5px;
-  margin-bottom: 15px;
-}
-
-/* Creative Template Styles */
-.creative-container {
-  font-family: 'Arial', sans-serif;
-  background: #f8fafc;
-}
-
-.creative-header {
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-  color: white;
-  padding: 30px;
-  margin: -40px -40px 30px -40px;
-}
-
-.creative-header h1 {
-  margin: 0;
   font-size: 2.8em;
-}
-
-.creative-section {
-  background: white;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Classic Template Styles */
-.classic-container {
-  font-family: 'Times New Roman', Times, serif;
-}
-
-.classic-header {
-  text-align: left;
-  border-bottom: 2px solid #374151;
-  padding-bottom: 15px;
-}
-
-.classic-header h1 {
-  color: #374151;
-  margin: 0;
-  font-size: 2.2em;
-  text-transform: uppercase;
-}
-
-.classic-section h2 {
-  color: #374151;
-  text-transform: uppercase;
-  font-size: 1.3em;
-  margin-bottom: 10px;
-}
-
-/* Minimal Template Styles */
-.minimal-container {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  background: white;
-}
-
-.minimal-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.minimal-header h1 {
+  margin: 0 0 10px 0;
   font-weight: 300;
-  font-size: 2.5em;
-  margin: 0;
-  letter-spacing: 2px;
-}
-
-.minimal-section {
-  margin-bottom: 30px;
-}
-
-.minimal-section h2 {
-  font-weight: 300;
-  font-size: 1.4em;
-  margin-bottom: 15px;
   letter-spacing: 1px;
 }
 
-/* Common Elements */
-.contact-info span {
-  font-size: 0.9em;
+.template-modern .title {
+  color: #666;
+  font-size: 1.4em;
+  margin: 0 0 20px 0;
+  font-weight: 400;
 }
 
-.experience-item, .education-item {
-  margin-bottom: 15px;
+.template-modern .contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  font-size: 0.95em;
+  color: #666;
 }
 
-.experience-item h3, .education-item h3 {
+.template-modern .preview-section h2 {
+  color: #2563eb;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+.template-modern .experience-item,
+.template-modern .education-item {
+  margin-bottom: 25px;
+}
+
+.template-modern .experience-header,
+.template-modern .education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.template-modern .experience-header h3,
+.template-modern .education-header h3 {
   margin: 0;
   color: #333;
-  font-size: 1.1em;
+  font-size: 1.2em;
+  font-weight: 600;
 }
 
-.company, .institution {
+.template-modern .dates {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+.template-modern .company,
+.template-modern .institution {
   color: #666;
   font-style: italic;
-  margin: 5px 0;
+  margin-bottom: 8px;
 }
 
-.skills-list {
+.template-modern .skills-list {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-.skill-tag {
-  background: #e5e7eb;
-  padding: 5px 10px;
-  border-radius: 15px;
+.template-modern .skill-tag {
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 0.9em;
+}
+
+/* ===== CREATIVE TEMPLATE ===== */
+.template-creative {
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.template-creative .preview-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: white;
+  padding: 40px;
+  margin: -40px -40px 30px -40px;
+  text-align: center;
+}
+
+.template-creative .name {
+  font-size: 3em;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.template-creative .title {
+  font-size: 1.3em;
+  opacity: 0.9;
+  margin: 0 0 20px 0;
+}
+
+.template-creative .contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95em;
+}
+
+.template-creative .preview-section {
+  background: white;
+  padding: 25px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.template-creative .preview-section h2 {
+  color: #7c3aed;
+  margin: 0 0 20px 0;
+  font-size: 1.4em;
+  font-weight: 700;
+  border-left: 4px solid #7c3aed;
+  padding-left: 15px;
+}
+
+.template-creative .experience-header,
+.template-creative .education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 8px;
+  flex-direction: column;
+}
+
+.template-creative .dates {
+  background: #7c3aed;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.template-creative .skills-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.template-creative .skill-tag {
+  background: #f3f4f6;
+  color: #7c3aed;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  border: 2px solid #e5e7eb;
+}
+
+/* ===== CLASSIC TEMPLATE ===== */
+.template-classic {
+  font-family: 'Times New Roman', Times, serif;
+  background: #ffffff;
+  color: #000;
+}
+
+.template-classic .preview-header {
+  text-align: left;
+  border-bottom: 2px solid #000;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.template-classic .name {
+  font-size: 2.5em;
+  margin: 0 0 5px 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.template-classic .title {
+  font-size: 1.3em;
+  margin: 0 0 15px 0;
+  font-style: italic;
+}
+
+.template-classic .contact-info {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95em;
+}
+
+.template-classic .preview-section h2 {
+  color: #000;
+  margin: 0 0 15px 0;
+  font-size: 1.3em;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 1px solid #000;
+  padding-bottom: 5px;
+}
+
+.template-classic .experience-item,
+.template-classic .education-item {
+  margin-bottom: 20px;
+}
+
+.template-classic .experience-header,
+.template-classic .education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.template-classic .company,
+.template-classic .institution {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.template-classic .dates {
+  font-style: italic;
+}
+
+.template-classic .skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-classic .skill-tag {
+  background: #f0f0f0;
+  padding: 5px 12px;
+  border: 1px solid #ddd;
+}
+
+/* ===== MINIMAL TEMPLATE ===== */
+.template-minimal {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: #ffffff;
+  color: #333;
+}
+
+.template-minimal .preview-content {
+  padding: 60px;
+}
+
+.template-minimal .preview-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.template-minimal .name {
+  font-size: 2.2em;
+  margin: 0 0 5px 0;
+  font-weight: 300;
+  letter-spacing: 3px;
+}
+
+.template-minimal .title {
+  font-size: 1.1em;
+  margin: 0 0 20px 0;
+  color: #666;
+  font-weight: 300;
+}
+
+.template-minimal .contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+  font-size: 0.9em;
+  color: #999;
+}
+
+.template-minimal .preview-section {
+  margin-bottom: 30px;
+}
+
+.template-minimal .preview-section h2 {
+  font-size: 1.1em;
+  margin: 0 0 15px 0;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #666;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.template-minimal .experience-item,
+.template-minimal .education-item {
+  margin-bottom: 20px;
+}
+
+.template-minimal .experience-header,
+.template-minimal .education-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.template-minimal .dates {
+  color: #999;
+  font-size: 0.9em;
+}
+
+.template-minimal .skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.template-minimal .skill-tag {
+  background: none;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  border-radius: 0;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .cv-preview {
+  .preview-content {
     padding: 20px;
-    min-height: auto;
   }
   
-  .modern-header .contact-info {
+  .template-modern .contact-info,
+  .template-creative .contact-info,
+  .template-classic .contact-info,
+  .template-minimal .contact-info {
     flex-direction: column;
     gap: 5px;
+    align-items: center;
+  }
+  
+  .template-modern .name,
+  .template-creative .name,
+  .template-classic .name,
+  .template-minimal .name {
+    font-size: 2em;
   }
 }
