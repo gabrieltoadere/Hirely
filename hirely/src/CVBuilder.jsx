@@ -33,10 +33,7 @@ const CVBuilder = () => {
 
   // Updated export function in CVBuilder.jsx
 const exportToPDF = () => {
-  // Store references to elements
   const previewElement = document.querySelector('.cv-preview');
-  const previewContainer = document.querySelector('.cv-preview-container');
-  const builderContent = document.querySelector('.builder-content');
   
   if (!previewElement) {
     alert('CV preview not found. Please try again.');
@@ -46,25 +43,25 @@ const exportToPDF = () => {
   // Create a clone of the preview for printing
   const printClone = previewElement.cloneNode(true);
   
-  // Style the clone for printing
+  // Style the clone for printing with proper A4 dimensions
   printClone.style.cssText = `
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
+    width: 210mm !important;  /* A4 width */
+    min-height: 297mm !important; /* A4 height */
     background: white !important;
     z-index: 9999 !important;
     margin: 0 !important;
-    padding: 20mm !important;
+    padding: 15mm !important;  /* Reduced from 20mm */
     box-shadow: none !important;
     transform: none !important;
     overflow: visible !important;
     visibility: visible !important;
     display: block !important;
+    box-sizing: border-box !important;
   `;
 
-  // Add print-specific styles to the clone
   printClone.classList.add('print-mode');
 
   // Create a print container
@@ -81,17 +78,15 @@ const exportToPDF = () => {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    padding: 20mm;
+    padding: 10mm;  /* Reduced container padding */
     overflow: auto;
+    box-sizing: border-box;
   `;
 
-  // Append the clone to the print container
   printContainer.appendChild(printClone);
-  
-  // Add print container to body
   document.body.appendChild(printContainer);
 
-  // Add print styles
+  // Add optimized print styles
   const printStyles = `
     <style>
       @media print {
@@ -107,45 +102,82 @@ const exportToPDF = () => {
           left: 0 !important;
           top: 0 !important;
           width: 100% !important;
-          height: auto !important;
+          height: 100% !important;
           padding: 0 !important;
           margin: 0 !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: flex-start !important;
         }
         .cv-preview.print-mode {
           width: 210mm !important;
           min-height: 297mm !important;
           box-shadow: none !important;
-          margin: 0 auto !important;
-          padding: 20mm !important;
+          margin: 0 !important;
+          padding: 10mm !important;  /* Even less padding for print */
+          transform: scale(1) !important;
+        }
+        
+        /* Optimize CV content for print */
+        .cv-preview.print-mode .preview-content {
+          padding: 0 !important;
+          width: 100% !important;
+        }
+        
+        /* Reduce font sizes for better fit */
+        .cv-preview.print-mode .name {
+          font-size: 24pt !important;
+        }
+        
+        .cv-preview.print-mode .title {
+          font-size: 14pt !important;
+        }
+        
+        .cv-preview.print-mode h2 {
+          font-size: 16pt !important;
+        }
+        
+        .cv-preview.print-mode h3 {
+          font-size: 12pt !important;
+        }
+        
+        .cv-preview.print-mode p {
+          font-size: 10pt !important;
+        }
+        
+        /* Ensure good page breaks */
+        .preview-section {
+          page-break-inside: avoid;
+          break-inside: avoid;
         }
       }
       
-      /* Screen styles for print preview */
+      /* Screen preview styles */
       .cv-preview.print-mode {
-        transform: scale(1) !important;
+        transform: scale(0.8) !important; /* Scale down for screen preview */
         width: 210mm !important;
         min-height: 297mm !important;
         background: white !important;
+        border: 1px solid #ccc !important;
       }
     </style>
   `;
 
-  // Add styles to head
   document.head.insertAdjacentHTML('beforeend', printStyles);
 
   // Trigger print
   setTimeout(() => {
     window.print();
     
-    // Clean up after printing
+    // Clean up
     setTimeout(() => {
-      if (document.getElementById('cv-print-container')) {
-        document.getElementById('cv-print-container').remove();
+      const printContainer = document.getElementById('cv-print-container');
+      if (printContainer) {
+        printContainer.remove();
       }
       
-      // Remove the print styles
-      const addedStyles = document.querySelector('style[data-print-styles]');
-      if (addedStyles) {
+      const addedStyles = document.querySelector('style');
+      if (addedStyles && addedStyles.innerHTML.includes('@media print')) {
         addedStyles.remove();
       }
     }, 500);
