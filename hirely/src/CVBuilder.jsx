@@ -106,7 +106,7 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
   );
 };
 
-const CVBuilder = () => {
+const CVBuilder = ({onEditingStateChange}) => {
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [cvData, setCvData] = useState({
     personalInfo: {},
@@ -132,6 +132,12 @@ const CVBuilder = () => {
   const [currentStep, setCurrentStep] = useState('template-selection');
   const [showPrintView, setShowPrintView] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+
+  useEffect(() => {
+    if (onEditingStateChange) {
+      onEditingStateChange(currentStep === 'form-filling');
+    }
+  }, [currentStep, onEditingStateChange]);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);

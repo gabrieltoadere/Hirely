@@ -1,3 +1,18 @@
 .header-logo{
     height: 30vh;
 }
+
+body.editing-template .App-header,
+body.editing-template footer {
+  display: none;
+}
+
+/* Ensure main content takes full height when editing */
+body.editing-template .App {
+  min-height: 100vh;
+}
+
+body.editing-template main {
+  height: 100vh;
+  overflow: auto;
+}
