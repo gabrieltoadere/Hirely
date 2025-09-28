@@ -1,3 +1,5 @@
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { useEffect, useRef, useState } from 'react';
 import './CVBuilder.css';
 import CVPreview from './CVPreview';
@@ -64,7 +66,7 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
         margin: '0 auto',
         paddingTop: '60px'
       }}>
-        {cvData.pages.map((page, pageIndex) => (
+        {cvData.pages.map((page) => (
           <div 
             key={page.id}
             className="cv-page print-page"
@@ -79,6 +81,17 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
               position: 'relative'
             }}
           >
+            {/* Add CSS to hide any page counters */}
+            <style>
+              {`
+                .print-page .page-counter,
+                .print-page .page-number,
+                .print-page [class*="page"],
+                .print-page [class*="counter"] {
+                  display: none !important;
+                }
+              `}
+            </style>
             <CVPreview 
               template={template}
               cvData={cvData}
@@ -86,17 +99,6 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
               currentPage={page.id}
               isPrintMode={true}
             />
-            {/* Page number indicator (hidden in print) */}
-            <div className="page-number" style={{ 
-              position: 'absolute', 
-              top: '5mm', 
-              right: '15mm', 
-              fontSize: '10pt', 
-              color: '#666',
-              fontFamily: 'Arial, sans-serif'
-            }}>
-              Page {pageIndex + 1} of {cvData.pages.length}
-            </div>
           </div>
         ))}
       </div>
@@ -129,6 +131,7 @@ const CVBuilder = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentStep, setCurrentStep] = useState('template-selection');
   const [showPrintView, setShowPrintView] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
@@ -144,171 +147,78 @@ const CVBuilder = () => {
     setCurrentStep('template-selection');
   };
 
-  const exportToPDF = () => {
-  const previewElement = document.querySelector('.cv-preview');
+  const exportToPDF = async () => {
+  setIsGeneratingPDF(true);
   
-  if (!previewElement) {
-    alert('CV preview not found.');
-    return;
-  }
+  try {
+    // Create a temporary container
+    const tempContainer = document.createElement('div');
+    tempContainer.style.cssText = `
+      position: fixed;
+      top: -10000px;
+      left: -10000px;
+      width: 210mm;
+      z-index: 10000;
+      background: white;
+    `;
+    document.body.appendChild(tempContainer);
 
-  const printClone = previewElement.cloneNode(true);
-  
-  printClone.style.cssText = `
-    position: fixed !important;
-    top: 10px !important;
-    left: 10px !important;
-    width: 210mm !important;
-    min-height: 297mm !important;
-    background: white !important;
-    z-index: 9999 !important;
-    margin: 0 !important;
-    padding: 8mm !important;
-    box-shadow: none !important;
-    transform: none !important;
-    overflow: visible !important;
-    visibility: visible !important;
-    display: block !important;
-    box-sizing: border-box !important;
-  `;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pageWidth = 210;
+    const pageHeight = 297;
 
-  printClone.classList.add('print-mode');
+    // Use the actual print view content instead of recreating it
+    const printContainer = document.getElementById('cv-print-container');
+    if (!printContainer) {
+      // If print view isn't open, create it temporarily
+      setShowPrintView(true);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
+    }
 
-  const printContainer = document.createElement('div');
-  printContainer.id = 'cv-print-container';
-  printContainer.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.8);
-    z-index: 10000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    overflow: auto;
-    box-sizing: border-box;
-  `;
-
-  printContainer.appendChild(printClone);
-  document.body.appendChild(printContainer);
-
-  const printStyles = `
-    <style>
-      @media print {
-        /* Remove browser headers and footers */
-        @page {
-          margin: 0 !important; /* This is the key line */
-          size: A4;
-        }
-        
-        body {
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
-        /* Hide URL, page numbers, date, etc. */
-        /* Chrome, Safari, Edge */
-        @page { 
-          margin: 0; 
-          size: A4;
-        }
-        
-        /* Firefox */
-        @page :footer { display: none }
-        @page :header { display: none }
-        
-        /* General print hiding */
-        body * {
-          visibility: hidden;
-        }
-        
-        #cv-print-container,
-        #cv-print-container * {
-          visibility: visible;
-        }
-        
-        #cv-print-container {
-          all: unset !important;
-          position: absolute !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          background: white !important;
-          display: flex !important;
-          justify-content: center !important;
-          align-items: flex-start !important;
-        }
-        
-        .cv-preview.print-mode {
-          width: 210mm !important;
-          min-height: 297mm !important;
-          padding: 5mm !important;
-          margin: 0 !important;
-        }
-        
-        .cv-preview.print-mode .preview-content {
-          padding: 0 !important;
-          margin: 0 !important;
-          width: 100% !important;
-        }
-        
-        .cv-preview.print-mode .name {
-          font-size: 22pt !important;
-          margin-bottom: 5px !important;
-        }
-        
-        .cv-preview.print-mode .title {
-          font-size: 12pt !important;
-          margin-bottom: 10px !important;
-        }
-        
-        .cv-preview.print-mode h2 {
-          font-size: 14pt !important;
-          margin-bottom: 8px !important;
-        }
-        
-        .cv-preview.print-mode .experience-item,
-        .cv-preview.print-mode .education-item {
-          margin-bottom: 8px !important;
-        }
-      }
-      
-      /* Additional browser-specific fixes */
-      @media print {
-        /* Chrome/Safari/Edge */
-        .cv-preview.print-mode {
-          -webkit-print-color-adjust: exact; /* Force colors to print */
-        }
-        
-        /* Firefox */
-        @-moz-document url-prefix() {
-          .cv-preview.print-mode {
-            print-color-adjust: exact;
-          }
-        }
-      }
-    </style>
-  `;
-
-  document.head.insertAdjacentHTML('beforeend', printStyles);
-
-  setTimeout(() => {
-    window.print();
+    const printPages = document.querySelectorAll('.print-page');
     
-    setTimeout(() => {
-      const printContainer = document.getElementById('cv-print-container');
-      if (printContainer) printContainer.remove();
+    for (let i = 0; i < printPages.length; i++) {
+      const pageElement = printPages[i];
       
-      const styles = document.querySelector('style');
-      if (styles && styles.innerHTML.includes('@media print')) {
-        styles.remove();
+      const canvas = await html2canvas(pageElement, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: pageElement.scrollWidth,
+        height: pageElement.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: pageElement.scrollWidth,
+        windowHeight: pageElement.scrollHeight
+      });
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      if (i > 0) {
+        pdf.addPage();
       }
-    }, 500);
-  }, 500);
+      
+      // Calculate dimensions to fit A4
+      const imgWidth = pageWidth;
+      const imgHeight = pageHeight;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, '', 'FAST');
+    }
+
+    // Clean up
+    document.body.removeChild(tempContainer);
+    
+    // Save PDF
+    pdf.save('my-cv.pdf');
+    
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    alert('Error generating PDF. Please try again.');
+  } finally {
+    setIsGeneratingPDF(false);
+  }
 };
 
   const handleClosePrintView = () => {
@@ -341,11 +251,14 @@ const CVBuilder = () => {
           ← Change Template
         </button>
         <h2>Editing: {selectedTemplate?.name || 'Selected'} Template</h2>
-        <button onClick={exportToPDF} className="export-button">
-          📄 Export PDF
+        <button 
+          onClick={exportToPDF} 
+          className="export-button"
+          disabled={isGeneratingPDF}
+        >
+          {isGeneratingPDF ? '⏳ Generating PDF...' : '📄 Download PDF'}
         </button>
         
-        {/* Debug button - manually trigger print without auto-open */}
         <button 
           onClick={() => setShowPrintView(true)}
           style={{
@@ -358,7 +271,7 @@ const CVBuilder = () => {
             cursor: 'pointer'
           }}
         >
-          👁️ Preview Only
+          PDF Preview
         </button>
       </div>
       
@@ -470,4 +383,4 @@ const CVBuilder = () => {
   );
 }
 
-export default CVBuilder;   
+export default CVBuilder;
