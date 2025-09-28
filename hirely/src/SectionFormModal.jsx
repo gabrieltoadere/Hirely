@@ -5,20 +5,25 @@ import './SectionFormModal.css';
 const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState([]);
 
-  // Initialize form data when section changes
+  // Initialize form data when section changes OR when modal opens/closes
   useEffect(() => {
-    if (section) {
+    if (isOpen && section) {
       const sectionData = cvData[section.id === 'summary' ? 'personalInfo' : section.id];
       
       if (section.type === 'tags' || section.type === 'list') {
-        setFormData(sectionData || []);
+        // For list types, we want to start with an empty form for adding NEW items
+        // Only pre-populate if we're editing existing data (which we're not in this case)
+        setFormData([]);
       } else if (section.id === 'summary') {
         setFormData({ summary: sectionData?.summary || '' });
       } else {
         setFormData(sectionData || {});
       }
+    } else {
+      // Reset form data when modal closes
+      setFormData([]);
     }
-  }, [section, cvData]);
+  }, [section, cvData, isOpen]); // Added isOpen to dependencies
 
   const handleSave = () => {
     if (section.id === 'summary') {
@@ -27,9 +32,13 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
         personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
       }));
     } else if (section.type === 'tags' || section.type === 'list') {
+      // Merge new items with existing ones
       setCvData(prev => ({
         ...prev,
-        [section.id]: formData
+        [section.id]: [
+          ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
+          ...(Array.isArray(formData) ? formData : [])
+        ]
       }));
     } else {
       setCvData(prev => ({
@@ -40,6 +49,11 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
     
     onSave();
     onClose();
+  };
+
+  // Safe array mapping function
+  const safeMap = (data, callback) => {
+    return (Array.isArray(data) ? data : []).map(callback);
   };
 
   const renderForm = () => {
@@ -67,18 +81,20 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                 placeholder={`Add a ${section.name.slice(0, -1)} and press Enter`}
                 onKeyPress={(e) => {
                   if (e.key === 'Enter' && e.target.value.trim()) {
-                    setFormData(prev => [...(prev || []), { name: e.target.value.trim() }]);
+                    setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: e.target.value.trim() }]);
                     e.target.value = '';
                     e.preventDefault();
                   }
                 }}
               />
               <div className="tags-list">
-                {(formData || []).map((item, index) => (
+                {safeMap(formData, (item, index) => (
                   <span key={index} className="tag">
                     {item.name}
                     <button 
-                      onClick={() => setFormData(prev => prev.filter((_, i) => i !== index))}
+                      onClick={() => setFormData(prev => 
+                        (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                      )}
                       className="remove-tag"
                     >
                       ×
@@ -93,39 +109,40 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
       case 'list':
         return (
           <div className="form-group">
-            <label>{section.name}</label>
-            <button 
-              type="button"
-              onClick={() => setFormData(prev => [...(prev || []), {}])}
-              className="add-item-btn"
-            >
-              + Add New
-            </button>
+            <label>Add New {section.name} Item</label>
+            <p className="form-help-text">Fill in the details for one new item</p>
             
             <div className="items-list">
-              {(formData || []).map((item, index) => (
+              {safeMap(formData, (item, index) => (
                 <div key={index} className="item-form">
                   <div className="item-header">
-                    <h4>Item #{index + 1}</h4>
+                    <h4>New {section.name} Item</h4>
                     <button 
                       type="button"
-                      onClick={() => setFormData(prev => prev.filter((_, i) => i !== index))}
+                      onClick={() => setFormData(prev => 
+                        (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                      )}
                       className="remove-item-btn"
                     >
-                      Remove
+                      Clear Form
                     </button>
                   </div>
                   
                   <input
                     type="text"
-                    placeholder="Title"
+                    placeholder={
+                      section.id === 'experience' ? 'Job Title' :
+                      section.id === 'education' ? 'Degree' :
+                      section.id === 'skills' ? 'Skill Name' :
+                      'Title'
+                    }
                     value={item.title || item.name || item.jobTitle || item.degree || ''}
                     onChange={(e) => {
                       const fieldName = section.id === 'skills' ? 'name' : 
                                      section.id === 'experience' ? 'jobTitle' :
                                      section.id === 'education' ? 'degree' : 'title';
                       setFormData(prev => {
-                        const updated = [...prev];
+                        const updated = Array.isArray(prev) ? [...prev] : [];
                         updated[index] = { ...updated[index], [fieldName]: e.target.value };
                         return updated;
                       });
@@ -134,13 +151,18 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                   
                   <input
                     type="text"
-                    placeholder="Organization/Company"
+                    placeholder={
+                      section.id === 'experience' ? 'Company' :
+                      section.id === 'education' ? 'Institution' :
+                      section.id === 'certifications' ? 'Issuing Organization' :
+                      'Organization'
+                    }
                     value={item.company || item.institution || item.issuer || ''}
                     onChange={(e) => {
                       const fieldName = section.id === 'education' ? 'institution' :
                                      section.id === 'certifications' ? 'issuer' : 'company';
                       setFormData(prev => {
-                        const updated = [...prev];
+                        const updated = Array.isArray(prev) ? [...prev] : [];
                         updated[index] = { ...updated[index], [fieldName]: e.target.value };
                         return updated;
                       });
@@ -154,7 +176,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                     onChange={(e) => {
                       const fieldName = section.id === 'certifications' ? 'date' : 'dates';
                       setFormData(prev => {
-                        const updated = [...prev];
+                        const updated = Array.isArray(prev) ? [...prev] : [];
                         updated[index] = { ...updated[index], [fieldName]: e.target.value };
                         return updated;
                       });
@@ -162,10 +184,10 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                   />
                   
                   <textarea
-                    placeholder="Description"
+                    placeholder="Description, details, or accomplishments"
                     value={item.description || ''}
                     onChange={(e) => setFormData(prev => {
-                      const updated = [...prev];
+                      const updated = Array.isArray(prev) ? [...prev] : [];
                       updated[index] = { ...updated[index], description: e.target.value };
                       return updated;
                     })}
@@ -174,6 +196,14 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                 </div>
               ))}
             </div>
+
+            <button 
+              type="button"
+              onClick={() => setFormData(prev => [...(Array.isArray(prev) ? prev : []), {}])}
+              className="add-item-btn"
+            >
+              + Add New Item
+            </button>
           </div>
         );
 
@@ -202,7 +232,13 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
         
         <div className="modal-footer">
           <button onClick={onClose} className="cancel-btn">Cancel</button>
-          <button onClick={handleSave} className="save-btn">Save Section</button>
+          <button 
+            onClick={handleSave} 
+            className="save-btn"
+            disabled={section.type === 'list' && (!Array.isArray(formData) || formData.length === 0)}
+          >
+            Save to {section.name}
+          </button>
         </div>
       </div>
     </div>

@@ -10,7 +10,6 @@ import TemplateSelector from './templateSelector';
 const PrintView = ({ cvData, template, customization, onClose }) => {
   const printContainerRef = useRef(null);
 
-  // Add a print-specific class to body when component mounts
   useEffect(() => {
     document.body.classList.add('print-active');
     
@@ -35,8 +34,8 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
         padding: '20px', 
         overflow: 'auto',
         boxSizing: 'border-box'
-      }}
-    >
+      }}>
+        
       {/* Close button for preview */}
       <button 
         onClick={onClose}
@@ -76,7 +75,8 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
               margin: '0 auto 10mm auto',
               padding: '15mm',
               boxShadow: '0 0 20px rgba(0,0,0,0.2)',
-              boxSizing: 'border-box'
+              boxSizing: 'border-box',
+              position: 'relative'
             }}
           >
             <CVPreview 
@@ -100,99 +100,6 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
           </div>
         ))}
       </div>
-      
-      {/* Move styles to a separate style tag for better control */}
-      <style>{`
-        /* Print styles */
-        @media print {
-          /* Reset everything for print */
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          @page {
-            margin: 0 !important;
-            size: A4 portrait;
-          }
-          
-          body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            overflow: visible !important;
-          }
-          
-          /* Hide everything except print container */
-          body > *:not(.cv-print-container) {
-            display: none !important;
-          }
-          
-          /* Show print container content */
-          .cv-print-container {
-            all: initial !important;
-            display: block !important;
-            position: relative !important;
-            width: 100% !important;
-            height: auto !important;
-            background: white !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            overflow: visible !important;
-          }
-          
-          /* Hide close button in print */
-          .print-close-button {
-            display: none !important;
-          }
-          
-          /* Style pages for print */
-          .print-pages-container {
-            all: initial !important;
-            display: block !important;
-            width: 100% !important;
-          }
-          
-          .cv-page {
-                display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            width: 210mm !important;
-            min-height: 297mm !important;
-            padding: 15mm !important;
-            margin: 0 auto !important;
-            page-break-after: always;
-            box-shadow: none !important;
-            border: none !important;
-            background: white !important;
-          }
-          
-          .cv-page:last-child {
-            page-break-after: auto;
-          }
-          
-          /* Hide page numbers in print */
-          .page-number {
-            display: none !important;
-          }
-        }
-        
-        /* Screen styles for print preview */
-        @media screen {
-          .cv-print-container {
-            display: block !important;
-          }
-          
-          .cv-page {
-            display: block !important;
-            visibility: visible !important;
-          }
-          
-          body.print-active {
-            overflow: hidden !important;
-          }
-        }
-      `}</style>
     </div>
   );
 };
@@ -222,7 +129,6 @@ const CVBuilder = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [currentStep, setCurrentStep] = useState('template-selection');
   const [showPrintView, setShowPrintView] = useState(false);
-  const [isPrinting, setIsPrinting] = useState(false);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
@@ -239,36 +145,174 @@ const CVBuilder = () => {
   };
 
   const exportToPDF = () => {
-    setShowPrintView(true);
-    setIsPrinting(true);
-  };
+  const previewElement = document.querySelector('.cv-preview');
+  
+  if (!previewElement) {
+    alert('CV preview not found.');
+    return;
+  }
+
+  const printClone = previewElement.cloneNode(true);
+  
+  printClone.style.cssText = `
+    position: fixed !important;
+    top: 10px !important;
+    left: 10px !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    background: white !important;
+    z-index: 9999 !important;
+    margin: 0 !important;
+    padding: 8mm !important;
+    box-shadow: none !important;
+    transform: none !important;
+    overflow: visible !important;
+    visibility: visible !important;
+    display: block !important;
+    box-sizing: border-box !important;
+  `;
+
+  printClone.classList.add('print-mode');
+
+  const printContainer = document.createElement('div');
+  printContainer.id = 'cv-print-container';
+  printContainer.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.8);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+    box-sizing: border-box;
+  `;
+
+  printContainer.appendChild(printClone);
+  document.body.appendChild(printContainer);
+
+  const printStyles = `
+    <style>
+      @media print {
+        /* Remove browser headers and footers */
+        @page {
+          margin: 0 !important; /* This is the key line */
+          size: A4;
+        }
+        
+        body {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        /* Hide URL, page numbers, date, etc. */
+        /* Chrome, Safari, Edge */
+        @page { 
+          margin: 0; 
+          size: A4;
+        }
+        
+        /* Firefox */
+        @page :footer { display: none }
+        @page :header { display: none }
+        
+        /* General print hiding */
+        body * {
+          visibility: hidden;
+        }
+        
+        #cv-print-container,
+        #cv-print-container * {
+          visibility: visible;
+        }
+        
+        #cv-print-container {
+          all: unset !important;
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          background: white !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-items: flex-start !important;
+        }
+        
+        .cv-preview.print-mode {
+          width: 210mm !important;
+          min-height: 297mm !important;
+          padding: 5mm !important;
+          margin: 0 !important;
+        }
+        
+        .cv-preview.print-mode .preview-content {
+          padding: 0 !important;
+          margin: 0 !important;
+          width: 100% !important;
+        }
+        
+        .cv-preview.print-mode .name {
+          font-size: 22pt !important;
+          margin-bottom: 5px !important;
+        }
+        
+        .cv-preview.print-mode .title {
+          font-size: 12pt !important;
+          margin-bottom: 10px !important;
+        }
+        
+        .cv-preview.print-mode h2 {
+          font-size: 14pt !important;
+          margin-bottom: 8px !important;
+        }
+        
+        .cv-preview.print-mode .experience-item,
+        .cv-preview.print-mode .education-item {
+          margin-bottom: 8px !important;
+        }
+      }
+      
+      /* Additional browser-specific fixes */
+      @media print {
+        /* Chrome/Safari/Edge */
+        .cv-preview.print-mode {
+          -webkit-print-color-adjust: exact; /* Force colors to print */
+        }
+        
+        /* Firefox */
+        @-moz-document url-prefix() {
+          .cv-preview.print-mode {
+            print-color-adjust: exact;
+          }
+        }
+      }
+    </style>
+  `;
+
+  document.head.insertAdjacentHTML('beforeend', printStyles);
+
+  setTimeout(() => {
+    window.print();
+    
+    setTimeout(() => {
+      const printContainer = document.getElementById('cv-print-container');
+      if (printContainer) printContainer.remove();
+      
+      const styles = document.querySelector('style');
+      if (styles && styles.innerHTML.includes('@media print')) {
+        styles.remove();
+      }
+    }, 500);
+  }, 500);
+};
 
   const handleClosePrintView = () => {
     setShowPrintView(false);
-    setIsPrinting(false);
-  };
-
-  // Handle the actual printing after the component renders
-  useEffect(() => {
-    if (isPrinting && showPrintView) {
-      // Wait longer for everything to render completely
-      const printTimer = setTimeout(() => {
-        console.log('Starting print...');
-        window.print();
-        
-        // Don't close immediately - let user handle the print dialog
-        setTimeout(() => {
-          setIsPrinting(false);
-        }, 2000);
-      }, 1500); // Increased delay for better rendering
-
-      return () => clearTimeout(printTimer);
-    }
-  }, [isPrinting, showPrintView]);
-
-  // Also add a manual print button inside the print view for testing
-  const handleManualPrint = () => {
-    window.print();
   };
 
   if (currentStep === 'template-selection') {
@@ -304,7 +348,15 @@ const CVBuilder = () => {
         {/* Debug button - manually trigger print without auto-open */}
         <button 
           onClick={() => setShowPrintView(true)}
-          style={{marginLeft: '10px', background: '#666'}}
+          style={{
+            marginLeft: '10px', 
+            background: '#666', 
+            color: 'white', 
+            border: 'none', 
+            padding: '8px 12px', 
+            borderRadius: '4px', 
+            cursor: 'pointer'
+          }}
         >
           👁️ Preview Only
         </button>
@@ -416,6 +468,6 @@ const CVBuilder = () => {
       </div>
     </div>
   );
-};
+}
 
-export default CVBuilder;
+export default CVBuilder;   
