@@ -40,23 +40,6 @@ function App() {
       >
         <CVBuilder onEditingStateChange={setIsEditingTemplate} />
       </motion.main>
-      
-      <AnimatePresence>
-        {!isEditingTemplate && (
-          <motion.footer
-            initial={{ opacity: 1, y: 0, height: 'auto' }}
-            exit={{ 
-              opacity: 0, 
-              y: 100,
-              height: 0,
-              transition: { duration: 0.4, ease: "easeInOut" }
-            }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
-            <p>&copy; 2024 CV Builder. All rights reserved.</p>
-          </motion.footer>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
