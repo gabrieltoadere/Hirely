@@ -1,20 +1,20 @@
 {
   "files": {
     "main.css": "/Hirely/static/css/main.473afd0d.css",
-    "main.js": "/Hirely/static/js/main.d4594adc.js",
+    "main.js": "/Hirely/static/js/main.ea5ebbc9.js",
     "static/js/977.9740fd22.chunk.js": "/Hirely/static/js/977.9740fd22.chunk.js",
     "static/js/455.9aeb378d.chunk.js": "/Hirely/static/js/455.9aeb378d.chunk.js",
     "static/js/453.590eb292.chunk.js": "/Hirely/static/js/453.590eb292.chunk.js",
     "static/media/mainLogo.png": "/Hirely/static/media/mainLogo.069fdf4791c80254b245.png",
     "index.html": "/Hirely/index.html",
     "main.473afd0d.css.map": "/Hirely/static/css/main.473afd0d.css.map",
-    "main.d4594adc.js.map": "/Hirely/static/js/main.d4594adc.js.map",
+    "main.ea5ebbc9.js.map": "/Hirely/static/js/main.ea5ebbc9.js.map",
     "977.9740fd22.chunk.js.map": "/Hirely/static/js/977.9740fd22.chunk.js.map",
     "455.9aeb378d.chunk.js.map": "/Hirely/static/js/455.9aeb378d.chunk.js.map",
     "453.590eb292.chunk.js.map": "/Hirely/static/js/453.590eb292.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.473afd0d.css",
-    "static/js/main.d4594adc.js"
+    "static/js/main.ea5ebbc9.js"
   ]
 }
