@@ -410,3 +410,92 @@ body.printing .preview-content {
   aspect-ratio: 1 / 1.414; /* A4 ratio */
   max-height: 80vh;
 }
+
+/* Page overflow indicators */
+.page-overflow-warning {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  color: #856404;
+}
+
+.page-overflow-warning h4 {
+  margin: 0 0 5px 0;
+  font-size: 14px;
+}
+
+.page-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.page-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.page-status-ok {
+  background: #28a745;
+}
+
+.page-status-warning {
+  background: #ffc107;
+}
+
+.page-status-error {
+  background: #dc3545;
+}
+
+/* CVBuilder.css additions for overflow detection */
+@keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+.overflow-warning {
+  animation: pulse 2s infinite;
+}
+
+.builder-preview {
+  position: relative;
+}
+
+/* Visual page boundary indicator */
+.cv-preview-container::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.overflow-detected .cv-preview-container::after {
+  opacity: 1;
+}
+
+/* Page status indicator */
+.page-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 100;
+}

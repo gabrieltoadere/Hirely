@@ -1,6 +1,6 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import './CVBuilder.css';
 import CVPreview from './CVPreview';
 import CustomizationPanel from './CustomizationPanel';
@@ -132,12 +132,120 @@ const CVBuilder = ({onEditingStateChange}) => {
   const [currentStep, setCurrentStep] = useState('template-selection');
   const [showPrintView, setShowPrintView] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [overflowDetected, setOverflowDetected] = useState(false);
+  const previewContainerRef = useRef(null);
 
   useEffect(() => {
     if (onEditingStateChange) {
       onEditingStateChange(currentStep === 'form-filling');
     }
   }, [currentStep, onEditingStateChange]);
+
+  // Real overflow detection using A4 page dimensions
+  const checkVisualOverflow = useCallback(() => {
+    const previewContainer = previewContainerRef.current;
+    if (!previewContainer) return false;
+
+    // Find the CV page element in the preview
+    const pageElement = previewContainer.querySelector('.cv-page');
+    if (!pageElement) return false;
+
+    // A4 page content height limit in pixels (approximately)
+    const CONTENT_HEIGHT_PX = 1000; // Allow some margin for padding
+    
+    const pageHeight = pageElement.scrollHeight;
+    const isOverflowing = pageHeight > CONTENT_HEIGHT_PX;
+
+    console.log('Page height:', pageHeight, 'Limit:', CONTENT_HEIGHT_PX, 'Overflowing:', isOverflowing);
+    
+    setOverflowDetected(isOverflowing);
+    return isOverflowing;
+  }, []);
+
+  // Handle overflow by moving content to new pages
+  const handleOverflow = useCallback(() => {
+    setCvData(prev => {
+      const currentPageData = prev.pages.find(page => page.id === currentPage);
+      if (!currentPageData || currentPageData.sections.length <= 2) {
+        return prev; // Don't move if only header + one section
+      }
+
+      // Create a copy of the current page sections
+      const sections = [...currentPageData.sections];
+      
+      // Keep essential sections on first page (header + maybe summary)
+      const essentialSections = sections.slice(0, 2); // header + first content section
+      const remainingSections = sections.slice(2);
+      
+      if (remainingSections.length === 0) {
+        return prev; // Nothing to move
+      }
+
+      let updatedPages = [...prev.pages];
+      const currentPageIndex = updatedPages.findIndex(page => page.id === currentPage);
+      
+      // Update current page with only essential sections
+      updatedPages[currentPageIndex] = {
+        ...currentPageData,
+        sections: essentialSections
+      };
+
+      // Distribute remaining sections to new pages
+      let currentNewPageSections = [];
+      let newPageId = Math.max(...updatedPages.map(p => p.id)) + 1;
+
+      remainingSections.forEach((section, index) => {
+        currentNewPageSections.push(section);
+        
+        // Create new page every 3-4 sections to prevent new overflow
+        if (currentNewPageSections.length >= 3 || index === remainingSections.length - 1) {
+          updatedPages.push({
+            id: newPageId,
+            sections: [...currentNewPageSections]
+          });
+          currentNewPageSections = [];
+          newPageId++;
+        }
+      });
+
+      console.log('Moved sections to new pages. Old page:', essentialSections, 'New pages created');
+      
+      return {
+        ...prev,
+        pages: updatedPages
+      };
+    });
+  }, [currentPage]);
+
+  // Check for overflow whenever data changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const isOverflowing = checkVisualOverflow();
+      if (isOverflowing) {
+        console.log('Overflow detected, handling...');
+        handleOverflow();
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [cvData, currentPage, checkVisualOverflow, handleOverflow]);
+
+  // Also check when user adds new sections or content
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkVisualOverflow();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [
+    cvData.experience,
+    cvData.education, 
+    cvData.skills,
+    cvData.projects,
+    cvData.personalInfo?.summary,
+    cvData.pages,
+    checkVisualOverflow
+  ]);
 
   const handleTemplateSelect = (template) => {
     setSelectedTemplate(template);
@@ -153,79 +261,132 @@ const CVBuilder = ({onEditingStateChange}) => {
     setCurrentStep('template-selection');
   };
 
-  const exportToPDF = async () => {
-  setIsGeneratingPDF(true);
-  
-  try {
-    // Create a temporary container
-    const tempContainer = document.createElement('div');
-    tempContainer.style.cssText = `
-      position: fixed;
-      top: -10000px;
-      left: -10000px;
-      width: 210mm;
-      z-index: 10000;
-      background: white;
-    `;
-    document.body.appendChild(tempContainer);
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = 210;
-    const pageHeight = 297;
-
-    // Use the actual print view content instead of recreating it
-    const printContainer = document.getElementById('cv-print-container');
-    if (!printContainer) {
-      // If print view isn't open, create it temporarily
-      setShowPrintView(true);
-      await new Promise(resolve => setTimeout(resolve, 500)); // Wait for render
-    }
-
-    const printPages = document.querySelectorAll('.print-page');
+  // Fixed Manual overflow check
+  const manualOverflowCheck = () => {
+    console.log('Manual overflow check triggered');
+    const isOverflowing = checkVisualOverflow();
+    console.log('Is overflowing:', isOverflowing);
     
-    for (let i = 0; i < printPages.length; i++) {
-      const pageElement = printPages[i];
-      
-      const canvas = await html2canvas(pageElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: pageElement.scrollWidth,
-        height: pageElement.scrollHeight,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: pageElement.scrollWidth,
-        windowHeight: pageElement.scrollHeight
+    if (isOverflowing) {
+      console.log('Calling handleOverflow...');
+      handleOverflow();
+      setTimeout(() => {
+        alert('Overflow detected! Content has been moved to new pages.');
+      }, 100);
+    } else {
+      alert('No overflow detected. Your content fits perfectly on the current page.');
+    }
+  };
+
+  // Force redistribute all content
+  const redistributeAllContent = () => {
+    setCvData(prev => {
+      // Collect all sections from all pages
+      const allSections = [];
+      prev.pages.forEach(page => {
+        allSections.push(...page.sections);
       });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      
-      if (i > 0) {
-        pdf.addPage();
-      }
-      
-      // Calculate dimensions to fit A4
-      const imgWidth = pageWidth;
-      const imgHeight = pageHeight;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, '', 'FAST');
-    }
+      // Redistribute sections evenly
+      const updatedPages = [];
+      let currentPageSections = [];
+      let pageId = 1;
 
-    // Clean up
-    document.body.removeChild(tempContainer);
+      allSections.forEach((section, index) => {
+        currentPageSections.push(section);
+        
+        // Create new page every 3-4 sections or if it's the last section
+        if (currentPageSections.length >= 4 || index === allSections.length - 1) {
+          updatedPages.push({
+            id: pageId,
+            sections: [...currentPageSections]
+          });
+          currentPageSections = [];
+          pageId++;
+        }
+      });
+
+      return {
+        ...prev,
+        pages: updatedPages
+      };
+    });
+    alert('All content has been redistributed across pages.');
+  };
+
+  const exportToPDF = async () => {
+    setIsGeneratingPDF(true);
     
-    // Save PDF
-    pdf.save('my-cv.pdf');
-    
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    alert('Error generating PDF. Please try again.');
-  } finally {
-    setIsGeneratingPDF(false);
-  }
-};
+    try {
+      // Do a final overflow check and redistribution
+      redistributeAllContent();
+      
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Create a temporary container
+      const tempContainer = document.createElement('div');
+      tempContainer.style.cssText = `
+        position: fixed;
+        top: -10000px;
+        left: -10000px;
+        width: 210mm;
+        z-index: 10000;
+        background: white;
+      `;
+      document.body.appendChild(tempContainer);
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = 210;
+      const pageHeight = 297;
+
+      // Use the actual print view content
+      const printContainer = document.getElementById('cv-print-container');
+      if (!printContainer) {
+        setShowPrintView(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      const printPages = document.querySelectorAll('.print-page');
+      
+      for (let i = 0; i < printPages.length; i++) {
+        const pageElement = printPages[i];
+        
+        const canvas = await html2canvas(pageElement, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: pageElement.scrollWidth,
+          height: pageElement.scrollHeight,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: pageElement.scrollWidth,
+          windowHeight: pageElement.scrollHeight
+        });
+
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        
+        if (i > 0) {
+          pdf.addPage();
+        }
+        
+        pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, '', 'FAST');
+      }
+
+      // Clean up
+      document.body.removeChild(tempContainer);
+      
+      // Save PDF
+      pdf.save('my-cv.pdf');
+      
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
 
   const handleClosePrintView = () => {
     setShowPrintView(false);
@@ -257,28 +418,61 @@ const CVBuilder = ({onEditingStateChange}) => {
           ← Change Template
         </button>
         <h2>Editing: {selectedTemplate?.name || 'Selected'} Template</h2>
-        <button 
-          onClick={exportToPDF} 
-          className="export-button"
-          disabled={isGeneratingPDF}
-        >
-          {isGeneratingPDF ? '⏳ Generating PDF...' : '📄 Download PDF'}
-        </button>
-        
-        <button 
-          onClick={() => setShowPrintView(true)}
-          style={{
-            marginLeft: '10px', 
-            background: '#666', 
-            color: 'white', 
-            border: 'none', 
-            padding: '8px 12px', 
-            borderRadius: '4px', 
-            cursor: 'pointer'
-          }}
-        >
-          PDF Preview
-        </button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button 
+            onClick={exportToPDF} 
+            className="export-button"
+            disabled={isGeneratingPDF}
+          >
+            {isGeneratingPDF ? '⏳ Generating PDF...' : '📄 Download PDF'}
+          </button>
+          
+          <button 
+            onClick={() => setShowPrintView(true)}
+            style={{
+              background: '#666', 
+              color: 'white', 
+              border: 'none', 
+              padding: '8px 12px', 
+              borderRadius: '4px', 
+              cursor: 'pointer'
+            }}
+          >
+            PDF Preview
+          </button>
+
+          <button 
+            onClick={manualOverflowCheck}
+            style={{
+              background: overflowDetected ? '#ff6b6b' : '#28a745', 
+              color: 'white', 
+              border: 'none', 
+              padding: '8px 12px', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+            title="Check if content overflows the page"
+          >
+            {overflowDetected ? '⚠️ Overflow!' : 'Check Overflow'}
+          </button>
+
+          <button 
+            onClick={redistributeAllContent}
+            style={{
+              background: '#007bff', 
+              color: 'white', 
+              border: 'none', 
+              padding: '8px 12px', 
+              borderRadius: '4px', 
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+            title="Redistribute all content evenly across pages"
+          >
+            Redistribute Content
+          </button>
+        </div>
       </div>
       
       <div className="builder-content">
@@ -374,7 +568,7 @@ const CVBuilder = ({onEditingStateChange}) => {
           </div>
         </div>
         
-        <div className="builder-preview">
+        <div className="builder-preview" ref={previewContainerRef}>
           <div className="cv-preview-container">
             <CVPreview 
               template={selectedTemplate}
@@ -383,6 +577,25 @@ const CVBuilder = ({onEditingStateChange}) => {
               currentPage={currentPage}
             />
           </div>
+          
+          {/* Overflow indicator */}
+          {overflowDetected && (
+            <div className="overflow-warning" style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              background: '#ff6b6b',
+              color: 'white',
+              padding: '10px 15px',
+              borderRadius: '4px',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              zIndex: 100,
+              animation: 'pulse 2s infinite'
+            }}>
+              ⚠️ Page Overflow Detected - Some content may be cut off
+            </div>
+          )}
         </div>
       </div>
     </div>

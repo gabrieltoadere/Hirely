@@ -485,3 +485,59 @@
   color: #6b7280;
   font-size: 0.9rem;
 }
+
+/* CVPreview.css additions for skills with bullet points */
+.skills-detailed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.skill-item {
+  margin-bottom: 10px;
+}
+
+.skill-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.skill-name {
+  font-weight: 600;
+  color: var(--primary-color, #2563eb);
+}
+
+.skill-level {
+  font-size: 0.85em;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.skill-bullets {
+  margin: 5px 0 0 0;
+  padding-left: 20px;
+}
+
+.skill-bullets li {
+  margin-bottom: 3px;
+  line-height: 1.4;
+  color: var(--text-color, #374151);
+}
+
+/* Keep the original skills list style for empty state */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background: var(--primary-color, #2563eb);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.9em;
+  display: inline-block;
+}

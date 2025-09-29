@@ -1,4 +1,4 @@
-// SectionManager.jsx (simplified)
+// SectionManager.jsx
 import { useState } from 'react';
 import SectionFormModal from './SectionFormModal';
 import './SectionManager.css';
@@ -7,21 +7,22 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
   const [showSectionModal, setShowSectionModal] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
+  const [isEditingExisting, setIsEditingExisting] = useState(false);
 
   const availableSections = [
-    { id: 'summary', name: 'Professional Summary', icon: '📝', type: 'textarea' },
-    { id: 'experience', name: 'Work Experience', icon: '💼', type: 'list' },
-    { id: 'education', name: 'Education', icon: '🎓', type: 'list' },
-    { id: 'skills', name: 'Skills', icon: '⚡', type: 'tags' },
-    { id: 'projects', name: 'Projects', icon: '🚀', type: 'list' },
-    { id: 'languages', name: 'Languages', icon: '🌎', type: 'list' },
-    { id: 'certifications', name: 'Certifications', icon: '🏆', type: 'list' },
-    { id: 'achievements', name: 'Achievements', icon: '⭐', type: 'list' },
-    { id: 'publications', name: 'Publications', icon: '📚', type: 'list' },
-    { id: 'references', name: 'References', icon: '👥', type: 'simple' },
-    { id: 'volunteer', name: 'Volunteer Experience', icon: '❤️', type: 'list' },
-    { id: 'interests', name: 'Interests', icon: '🎯', type: 'tags' }
-  ];
+  { id: 'summary', name: 'Professional Summary', icon: '📝', type: 'textarea' },
+  { id: 'experience', name: 'Work Experience', icon: '💼', type: 'list' },
+  { id: 'education', name: 'Education', icon: '🎓', type: 'list' },
+  { id: 'skills', name: 'Skills', icon: '⚡', type: 'list' },
+  { id: 'projects', name: 'Projects', icon: '🚀', type: 'list' },
+  { id: 'languages', name: 'Languages', icon: '🌎', type: 'list' },
+  { id: 'certifications', name: 'Certifications', icon: '🏆', type: 'list' },
+  { id: 'achievements', name: 'Achievements', icon: '⭐', type: 'list' },
+  { id: 'publications', name: 'Publications', icon: '📚', type: 'list' },
+  { id: 'references', name: 'References', icon: '👥', type: 'simple' },
+  { id: 'volunteer', name: 'Volunteer Experience', icon: '❤️', type: 'list' },
+  { id: 'interests', name: 'Interests', icon: '🎯', type: 'tags' }
+];
 
   const currentPageData = cvData.pages?.find(page => page.id === currentPage) || cvData.pages[0];
   const currentSections = currentPageData.sections || [];
@@ -38,6 +39,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     
     // Open the form modal for the new section
     setSelectedSection(section);
+    setIsEditingExisting(false);
     setShowFormModal(true);
     setShowSectionModal(false);
   };
@@ -45,6 +47,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
   const editSection = (sectionId) => {
     const section = availableSections.find(s => s.id === sectionId);
     setSelectedSection(section);
+    setIsEditingExisting(true);
     setShowFormModal(true);
   };
 
@@ -76,6 +79,22 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     });
   };
 
+  const getSectionDataCount = (sectionId) => {
+    const data = cvData[sectionId === 'summary' ? 'personalInfo' : sectionId];
+    if (!data) return 0;
+    
+    if (Array.isArray(data)) {
+      return data.length;
+    } else if (sectionId === 'summary') {
+      return data.summary ? 1 : 0;
+    }
+    return Object.keys(data).length > 0 ? 1 : 0;
+  };
+
+  const getCountIcon = (count) => {
+    return `${count}`;
+  };
+
   const unusedSections = availableSections.filter(
     section => !currentSections.includes(section.id)
   );
@@ -96,6 +115,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
       <div className="sections-list">
         {currentSections.map((sectionId, index) => {
           const sectionInfo = availableSections.find(s => s.id === sectionId);
+          const dataCount = getSectionDataCount(sectionId);
           
           return (
             <div key={sectionId} className="section-item">
@@ -106,12 +126,18 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
               >
                 <span className="section-icon">{sectionInfo?.icon || '📄'}</span>
                 <span className="section-name">{sectionInfo?.name || sectionId}</span>
+                {dataCount > 0 && (
+                  <span className="data-count">{getCountIcon(dataCount)}</span>
+                )}
               </div>
               
               <div className="section-actions">
                 {index > 0 && (
                   <button 
-                    onClick={() => moveSection(index, index - 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      moveSection(index, index - 1);
+                    }}
                     className="move-btn"
                     title="Move up"
                   >
@@ -121,7 +147,10 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
                 
                 {index < currentSections.length - 1 && (
                   <button 
-                    onClick={() => moveSection(index, index + 1)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      moveSection(index, index + 1);
+                    }}
                     className="move-btn"
                     title="Move down"
                   >
@@ -131,7 +160,10 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
                 
                 {sectionId !== 'header' && (
                   <button 
-                    onClick={() => removeSection(sectionId)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSection(sectionId);
+                    }}
                     className="remove-btn"
                     title="Remove section"
                   >
@@ -179,6 +211,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
         isOpen={showFormModal}
         onClose={() => setShowFormModal(false)}
         onSave={() => setShowFormModal(false)}
+        isEditing={isEditingExisting}
       />
     </div>
   );

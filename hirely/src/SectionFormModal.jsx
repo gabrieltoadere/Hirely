@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import './SectionFormModal.css';
 
-const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave }) => {
+const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave, isEditing }) => {
   const [formData, setFormData] = useState([]);
 
   // Initialize form data when section changes OR when modal opens/closes
@@ -10,20 +10,30 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
     if (isOpen && section) {
       const sectionData = cvData[section.id === 'summary' ? 'personalInfo' : section.id];
       
-      if (section.type === 'tags' || section.type === 'list') {
-        // For list types, we want to start with an empty form for adding NEW items
-        // Only pre-populate if we're editing existing data (which we're not in this case)
-        setFormData([]);
-      } else if (section.id === 'summary') {
-        setFormData({ summary: sectionData?.summary || '' });
+      if (isEditing) {
+        // When editing, load existing data
+        if (section.type === 'tags' || section.type === 'list') {
+          setFormData(Array.isArray(sectionData) ? [...sectionData] : []);
+        } else if (section.id === 'summary') {
+          setFormData({ summary: sectionData?.summary || '' });
+        } else {
+          setFormData(sectionData || {});
+        }
       } else {
-        setFormData(sectionData || {});
+        // When adding new, start with empty form
+        if (section.type === 'tags' || section.type === 'list') {
+          setFormData([]);
+        } else if (section.id === 'summary') {
+          setFormData({ summary: '' });
+        } else {
+          setFormData({});
+        }
       }
     } else {
       // Reset form data when modal closes
       setFormData([]);
     }
-  }, [section, cvData, isOpen]); // Added isOpen to dependencies
+  }, [section, cvData, isOpen, isEditing]);
 
   const handleSave = () => {
     if (section.id === 'summary') {
@@ -32,14 +42,22 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
         personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
       }));
     } else if (section.type === 'tags' || section.type === 'list') {
-      // Merge new items with existing ones
-      setCvData(prev => ({
-        ...prev,
-        [section.id]: [
-          ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
-          ...(Array.isArray(formData) ? formData : [])
-        ]
-      }));
+      if (isEditing) {
+        // Replace existing data when editing
+        setCvData(prev => ({
+          ...prev,
+          [section.id]: Array.isArray(formData) ? formData : []
+        }));
+      } else {
+        // Merge new items with existing ones when adding
+        setCvData(prev => ({
+          ...prev,
+          [section.id]: [
+            ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
+            ...(Array.isArray(formData) ? formData : [])
+          ]
+        }));
+      }
     } else {
       setCvData(prev => ({
         ...prev,
@@ -56,7 +74,98 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
     return (Array.isArray(data) ? data : []).map(callback);
   };
 
+  // Simplified skills form - just skill name
+  const renderSkillsForm = () => {
+    return (
+      <div className="form-group">
+        <label>{isEditing ? 'Edit' : 'Add'} Skills</label>
+        <p className="form-help-text">
+          {isEditing 
+            ? 'Edit your skills below. Each skill will be displayed in your CV.' 
+            : 'Add new skills to your CV. Each skill will be displayed as a tag.'
+          }
+        </p>
+        
+        <div className="skills-input-container">
+          {/* Quick add input */}
+          <div className="quick-add-section">
+            <input
+              type="text"
+              placeholder="Enter a skill and press Enter"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                  setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: e.target.value.trim() }]);
+                  e.target.value = '';
+                  e.preventDefault();
+                }
+              }}
+              className="quick-add-input"
+            />
+            <small className="input-hint">Press Enter to add quickly</small>
+          </div>
+
+          {/* Skills list */}
+          <div className="skills-list-preview">
+            <h4>Skills to be added:</h4>
+            {safeMap(formData, (skill, index) => (
+              <div key={index} className="skill-preview-item">
+                <span className="skill-name">{skill.name || 'Unnamed Skill'}</span>
+                <button 
+                  onClick={() => setFormData(prev => 
+                    (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                  )}
+                  className="remove-skill-btn"
+                  title="Remove skill"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {safeMap(formData, (skill, index) => (
+              <div key={index} className="skill-form-item">
+                <input
+                  type="text"
+                  placeholder="Skill name (e.g., JavaScript, Project Management)"
+                  value={skill.name || ''}
+                  onChange={(e) => {
+                    setFormData(prev => {
+                      const updated = Array.isArray(prev) ? [...prev] : [];
+                      updated[index] = { ...updated[index], name: e.target.value };
+                      return updated;
+                    });
+                  }}
+                  className="skill-name-input"
+                />
+                <button 
+                  onClick={() => setFormData(prev => 
+                    (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                  )}
+                  className="remove-skill-btn"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <button 
+          type="button"
+          onClick={() => setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: '' }])}
+          className="add-skill-btn"
+        >
+          + Add Another Skill
+        </button>
+      </div>
+    );
+  };
+
   const renderForm = () => {
+    // Special case for skills - use simplified form
+    if (section.id === 'skills') {
+      return renderSkillsForm();
+    }
+
     switch (section.type) {
       case 'textarea':
         return (
@@ -74,7 +183,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
       case 'tags':
         return (
           <div className="form-group">
-            <label>Add {section.name}</label>
+            <label>{isEditing ? 'Edit' : 'Add'} {section.name}</label>
             <div className="tags-input-container">
               <input
                 type="text"
@@ -109,14 +218,19 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
       case 'list':
         return (
           <div className="form-group">
-            <label>Add New {section.name} Item</label>
-            <p className="form-help-text">Fill in the details for one new item</p>
+            <label>{isEditing ? 'Edit' : 'Add New'} {section.name} {isEditing ? 'Items' : 'Item'}</label>
+            <p className="form-help-text">
+              {isEditing 
+                ? 'Edit your existing items below' 
+                : 'Fill in the details for one new item'
+              }
+            </p>
             
             <div className="items-list">
               {safeMap(formData, (item, index) => (
                 <div key={index} className="item-form">
                   <div className="item-header">
-                    <h4>New {section.name} Item</h4>
+                    <h4>{section.name} Item {index + 1}</h4>
                     <button 
                       type="button"
                       onClick={() => setFormData(prev => 
@@ -124,7 +238,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                       )}
                       className="remove-item-btn"
                     >
-                      Clear Form
+                      Remove
                     </button>
                   </div>
                   
@@ -133,13 +247,12 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
                     placeholder={
                       section.id === 'experience' ? 'Job Title' :
                       section.id === 'education' ? 'Degree' :
-                      section.id === 'skills' ? 'Skill Name' :
+                      section.id === 'certifications' ? 'Certification Name' :
                       'Title'
                     }
                     value={item.title || item.name || item.jobTitle || item.degree || ''}
                     onChange={(e) => {
-                      const fieldName = section.id === 'skills' ? 'name' : 
-                                     section.id === 'experience' ? 'jobTitle' :
+                      const fieldName = section.id === 'experience' ? 'jobTitle' :
                                      section.id === 'education' ? 'degree' : 'title';
                       setFormData(prev => {
                         const updated = Array.isArray(prev) ? [...prev] : [];
@@ -222,7 +335,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Add {section.name}</h2>
+          <h2>{isEditing ? 'Edit' : 'Add'} {section.name}</h2>
           <button onClick={onClose} className="close-btn">×</button>
         </div>
         
@@ -237,7 +350,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave 
             className="save-btn"
             disabled={section.type === 'list' && (!Array.isArray(formData) || formData.length === 0)}
           >
-            Save to {section.name}
+            {isEditing ? 'Update' : 'Save to'} {section.name}
           </button>
         </div>
       </div>

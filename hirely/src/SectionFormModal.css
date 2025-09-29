@@ -197,3 +197,116 @@
 .remove-item-btn:hover {
   background: #dc2626;
 }
+
+/* SectionFormModal.css additions for simplified skills form */
+.skills-input-container {
+  margin-bottom: 20px;
+}
+
+.quick-add-section {
+  margin-bottom: 20px;
+}
+
+.quick-add-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #007bff;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.quick-add-input:focus {
+  outline: none;
+  border-color: #0056b3;
+}
+
+.input-hint {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.skills-list-preview {
+  margin: 15px 0;
+}
+
+.skills-list-preview h4 {
+  margin-bottom: 10px;
+  color: #495057;
+}
+
+.skill-preview-item {
+  display: inline-flex;
+  align-items: center;
+  background: #e9ecef;
+  padding: 6px 12px;
+  border-radius: 20px;
+  margin: 4px;
+  font-size: 14px;
+}
+
+.skill-preview-item .skill-name {
+  margin-right: 8px;
+}
+
+.remove-skill-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.remove-skill-btn:hover {
+  background: #c82333;
+}
+
+.skill-form-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.skill-name-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.skill-name-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.add-skill-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+}
+
+.add-skill-btn:hover {
+  background: #218838;
+}
+
+/* Make the modal a bit wider for better skills display */
+.modal-content {
+  max-width: 600px;
+}
