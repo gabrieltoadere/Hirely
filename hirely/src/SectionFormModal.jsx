@@ -35,59 +35,60 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
     }
   }, [section, cvData, isOpen, isEditing]);
 
-  const handleSave = () => {
-    if (section.id === 'summary') {
+ const handleSave = () => {
+  if (section.id === 'summary') {
+    setCvData(prev => ({
+      ...prev,
+      personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
+    }));
+  } 
+  else if (section.type === 'skills') {
+    // ✅ Always handle skills here, don't bury it under tags/list
+    const skillsToSave = Array.isArray(formData)
+      ? formData.filter(skill => skill.name && skill.name.trim() !== '')
+      : [];
+
+    setCvData(prev => ({
+      ...prev,
+      skills: skillsToSave
+    }));
+  } 
+  else if (section.type === 'tags' || section.type === 'list') {
+    const dataToSave = Array.isArray(formData) ? formData : [];
+
+    if (isEditing) {
       setCvData(prev => ({
         ...prev,
-        personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
+        [section.id]: dataToSave
       }));
-    } else if (section.type === 'tags' || section.type === 'list') {
-      // For skills specifically, ensure we're saving the correct structure
-      if (section.id === 'skills') {
-        const skillsToSave = Array.isArray(formData)
-          ? formData.filter(skill => skill.name && skill.name.trim() !== '')
-          : [];
-        
-        setCvData(prev => ({
-          ...prev,
-          [section.id]: skillsToSave
-        }));
-      } else {
-        // For other list/tags sections
-        const dataToSave = Array.isArray(formData) ? formData : [];
-        
-        if (isEditing) {
-          // Replace existing data when editing
-          setCvData(prev => ({
-            ...prev,
-            [section.id]: dataToSave
-          }));
-        } else {
-          // Merge new items with existing ones when adding
-          setCvData(prev => ({
-            ...prev,
-            [section.id]: [
-              ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
-              ...dataToSave
-            ]
-          }));
-        }
-      }
     } else {
       setCvData(prev => ({
         ...prev,
-        [section.id]: formData
+        [section.id]: [
+          ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
+          ...dataToSave
+        ]
       }));
     }
-    
-    onSave();
-    onClose();
-  };
+  } 
+  else {
+    setCvData(prev => ({
+      ...prev,
+      [section.id]: formData
+    }));
+  }
+
+  onSave();
+  onClose();
+};
+
+
 
   // Safe array mapping function
   const safeMap = (data, callback) => {
     return (Array.isArray(data) ? data : []).map(callback);
   };
+
 
   // Simplified skills form - just skill name
   const renderSkillsForm = () => {
@@ -111,6 +112,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
             (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
           )}
           className="remove-skill-btn"
+          type="button"
         >
           Remove
         </button>
@@ -128,24 +130,8 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
         </p>
         
         <div className="skills-input-container">
-          {/* Quick add input */}
-          <div className="quick-add-section">
-            <input
-              type="text"
-              placeholder="Enter a skill"
-              onKeyPress={(e) => {
-                if (e.key === 'Enter') {
-                  setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: e.target.value.trim() }]);
-                  e.target.value = '';
-                  e.preventDefault();
-                }
-              }}
-              className="quick-add-input"
-            />
-            <small className="input-hint">Press Enter to add quickly</small>
-          </div>
 
-          {/* Skills list */}
+          {/* Skills list preview */}
           <div className="skills-list-preview">
             <h4>Skills to be {isEditing ? 'updated' : 'added'}:</h4>
             {safeMap(formData, (skill, index) => (
@@ -157,12 +143,13 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
                   )}
                   className="remove-skill-btn"
                   title="Remove skill"
+                  type="button"
                 >
                   ×
                 </button>
               </div>
             ))}
-            {formData.length === 0 && (
+            {(!formData || formData.length === 0) && (
               <p className="no-skills-message">No skills added yet.</p>
             )}
           </div>
@@ -178,7 +165,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
           onClick={() => setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: '' }])}
           className="add-skill-btn"
         >
-          + Add Another Skill
+          + Add Another Skill Field
         </button>
       </div>
     );
@@ -210,17 +197,6 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
           <div className="form-group">
             <label>{isEditing ? 'Edit' : 'Add'} {section.name}</label>
             <div className="tags-input-container">
-              <input
-                type="text"
-                placeholder={`Add a ${section.name.slice(0, -1)} and press Enter`}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && e.target.value.trim()) {
-                    setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: e.target.value.trim() }]);
-                    e.target.value = '';
-                    e.preventDefault();
-                  }
-                }}
-              />
               <div className="tags-list">
                 {safeMap(formData, (item, index) => (
                   <span key={index} className="tag">
@@ -230,6 +206,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
                         (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
                       )}
                       className="remove-tag"
+                      type="button"
                     >
                       ×
                     </button>
@@ -361,7 +338,7 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
       <div className="modal-content">
         <div className="modal-header">
           <h2>{isEditing ? 'Edit' : 'Add'} {section.name}</h2>
-          <button onClick={onClose} className="close-btn">×</button>
+          <button onClick={onClose} className="close-btn" type="button">×</button>
         </div>
         
         <div className="modal-body">
@@ -369,11 +346,11 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
         </div>
         
         <div className="modal-footer">
-          <button onClick={onClose} className="cancel-btn">Cancel</button>
+          <button onClick={onClose} className="cancel-btn" type="button">Cancel</button>
           <button 
             onClick={handleSave} 
             className="save-btn"
-            disabled={section.type === 'list' && (!Array.isArray(formData) || formData.length === 0)}
+            type="button"
           >
             {isEditing ? 'Update' : 'Save to'} {section.name}
           </button>

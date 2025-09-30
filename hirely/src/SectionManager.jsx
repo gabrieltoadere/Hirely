@@ -13,7 +13,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
   { id: 'summary', name: 'Professional Summary', icon: '📝', type: 'textarea' },
   { id: 'experience', name: 'Work Experience', icon: '💼', type: 'list' },
   { id: 'education', name: 'Education', icon: '🎓', type: 'list' },
-  { id: 'skills', name: 'Skills', icon: '⚡', type: 'list' },
+  { id: 'skills', name: 'Skills', icon: '⚡', type: 'skills' },
   { id: 'projects', name: 'Projects', icon: '🚀', type: 'list' },
   { id: 'languages', name: 'Languages', icon: '🌎', type: 'list' },
   { id: 'certifications', name: 'Certifications', icon: '🏆', type: 'list' },
