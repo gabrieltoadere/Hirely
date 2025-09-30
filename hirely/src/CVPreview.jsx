@@ -115,18 +115,11 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
         return (
           <div className="preview-section skills-section">
             <h2>Skills</h2>
-            {skills.length === 0 ? (
-              <div className="skills-list">
-                <span className="skill-tag">Skill 1</span>
-                <span className="skill-tag">Skill 2</span>
-                <span className="skill-tag">Skill 3</span>
-              </div>
-            ) : (
               <div className="skills-detailed-list">
                 {skills.map((skill, index) => (
                   <div key={index} className="skill-item">
                     <div className="skill-header">
-                      <strong className="skill-name">{skill.name || skill.title || `Skill ${index + 1}`}</strong>
+                      <strong className="skill-name">{skill.name || skill.title}</strong>
                       {skill.level && <span className="skill-level">({skill.level})</span>}
                     </div>
                     {skill.bulletPoints && skill.bulletPoints.length > 0 && (
@@ -139,7 +132,6 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                   </div>
                 ))}
               </div>
-            )}
           </div>
         );
       
