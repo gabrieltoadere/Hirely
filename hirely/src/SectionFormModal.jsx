@@ -8,25 +8,47 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
   // Initialize form data when section changes OR when modal opens/closes
   useEffect(() => {
     if (isOpen && section) {
-      const sectionData = cvData[section.id === 'summary' ? 'personalInfo' : section.id];
-      
-      if (isEditing) {
-        // When editing, load existing data
-        if (section.type === 'tags' || section.type === 'list') {
-          setFormData(Array.isArray(sectionData) ? [...sectionData] : []);
-        } else if (section.id === 'summary') {
-          setFormData({ summary: sectionData?.summary || '' });
+      // Check if it's a custom section
+      if (section.id.startsWith('custom-')) {
+        const customSectionData = cvData.customSectionsData?.[section.id];
+        
+        if (isEditing) {
+          // When editing custom section, load existing data
+          if (section.type === 'tags' || section.type === 'list') {
+            setFormData(Array.isArray(customSectionData) ? [...customSectionData] : []);
+          } else {
+            setFormData(customSectionData || {});
+          }
         } else {
-          setFormData(sectionData || {});
+          // When adding new custom section, start with empty form
+          if (section.type === 'tags' || section.type === 'list') {
+            setFormData([]);
+          } else {
+            setFormData({});
+          }
         }
       } else {
-        // When adding new, start with empty form
-        if (section.type === 'tags' || section.type === 'list') {
-          setFormData([]);
-        } else if (section.id === 'summary') {
-          setFormData({ summary: '' });
+        // Handle predefined sections (existing logic)
+        const sectionData = cvData[section.id === 'summary' ? 'personalInfo' : section.id];
+        
+        if (isEditing) {
+          // When editing, load existing data
+          if (section.type === 'tags' || section.type === 'list') {
+            setFormData(Array.isArray(sectionData) ? [...sectionData] : []);
+          } else if (section.id === 'summary') {
+            setFormData({ summary: sectionData?.summary || '' });
+          } else {
+            setFormData(sectionData || {});
+          }
         } else {
-          setFormData({});
+          // When adding new, start with empty form
+          if (section.type === 'tags' || section.type === 'list') {
+            setFormData([]);
+          } else if (section.id === 'summary') {
+            setFormData({ summary: '' });
+          } else {
+            setFormData({});
+          }
         }
       }
     } else {
@@ -35,60 +57,256 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
     }
   }, [section, cvData, isOpen, isEditing]);
 
- const handleSave = () => {
-  if (section.id === 'summary') {
-    setCvData(prev => ({
-      ...prev,
-      personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
-    }));
-  } 
-  else if (section.type === 'skills') {
-    // ✅ Always handle skills here, don't bury it under tags/list
-    const skillsToSave = Array.isArray(formData)
-      ? formData.filter(skill => skill.name && skill.name.trim() !== '')
-      : [];
-
-    setCvData(prev => ({
-      ...prev,
-      skills: skillsToSave
-    }));
-  } 
-  else if (section.type === 'tags' || section.type === 'list') {
-    const dataToSave = Array.isArray(formData) ? formData : [];
-
-    if (isEditing) {
+  const handleSave = () => {
+    // Handle custom sections
+    if (section.id.startsWith('custom-')) {
+      if (section.type === 'tags' || section.type === 'list') {
+        const dataToSave = Array.isArray(formData) ? formData : [];
+        setCvData(prev => ({
+          ...prev,
+          customSectionsData: {
+            ...prev.customSectionsData,
+            [section.id]: dataToSave
+          }
+        }));
+      } else if (section.type === 'textarea') {
+        setCvData(prev => ({
+          ...prev,
+          customSectionsData: {
+            ...prev.customSectionsData,
+            [section.id]: { content: formData.content || '' }
+          }
+        }));
+      } else {
+        // Simple type
+        setCvData(prev => ({
+          ...prev,
+          customSectionsData: {
+            ...prev.customSectionsData,
+            [section.id]: formData
+          }
+        }));
+      }
+    } 
+    else if (section.id === 'summary') {
       setCvData(prev => ({
         ...prev,
-        [section.id]: dataToSave
+        personalInfo: { ...prev.personalInfo, summary: formData.summary || '' }
       }));
-    } else {
+    } 
+    else if (section.type === 'skills') {
+      // ✅ Always handle skills here, don't bury it under tags/list
+      const skillsToSave = Array.isArray(formData)
+        ? formData.filter(skill => skill.name && skill.name.trim() !== '')
+        : [];
+
       setCvData(prev => ({
         ...prev,
-        [section.id]: [
-          ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
-          ...dataToSave
-        ]
+        skills: skillsToSave
+      }));
+    } 
+    else if (section.type === 'tags' || section.type === 'list') {
+      const dataToSave = Array.isArray(formData) ? formData : [];
+
+      if (isEditing) {
+        setCvData(prev => ({
+          ...prev,
+          [section.id]: dataToSave
+        }));
+      } else {
+        setCvData(prev => ({
+          ...prev,
+          [section.id]: [
+            ...(Array.isArray(prev[section.id]) ? prev[section.id] : []),
+            ...dataToSave
+          ]
+        }));
+      }
+    } 
+    else {
+      setCvData(prev => ({
+        ...prev,
+        [section.id]: formData
       }));
     }
-  } 
-  else {
-    setCvData(prev => ({
-      ...prev,
-      [section.id]: formData
-    }));
-  }
 
-  onSave();
-  onClose();
-};
-
-
+    onSave();
+    onClose();
+  };
 
   // Safe array mapping function
   const safeMap = (data, callback) => {
     return (Array.isArray(data) ? data : []).map(callback);
   };
 
+  // Render custom section form based on type
+  const renderCustomSectionForm = () => {
+    switch(section.type) {
+      case 'textarea':
+        return (
+          <div className="form-group">
+            <label>{section.name}</label>
+            <textarea
+              value={formData.content || ''}
+              onChange={(e) => setFormData({ content: e.target.value })}
+              placeholder={`Enter your ${section.name.toLowerCase()}...`}
+              rows={8}
+            />
+          </div>
+        );
+
+      case 'list':
+        return (
+          <div className="form-group">
+            <label>{isEditing ? 'Edit' : 'Add'} {section.name} Items</label>
+            <p className="form-help-text">
+              {isEditing
+                ? 'Edit your existing items below'
+                : 'Fill in the details for new items'
+              }
+            </p>
+            
+            <div className="items-list">
+              {safeMap(formData, (item, index) => (
+                <div key={index} className="item-form">
+                  <div className="item-header">
+                    <h4>{section.name} Item {index + 1}</h4>
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev =>
+                        (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                      )}
+                      className="remove-item-btn"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  
+                  <input
+                    type="text"
+                    placeholder="Title"
+                    value={item.title || item.name || ''}
+                    onChange={(e) => {
+                      setFormData(prev => {
+                        const updated = Array.isArray(prev) ? [...prev] : [];
+                        updated[index] = { ...updated[index], title: e.target.value };
+                        return updated;
+                      });
+                    }}
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="Organization/Institution"
+                    value={item.organization || item.institution || item.company || ''}
+                    onChange={(e) => {
+                      setFormData(prev => {
+                        const updated = Array.isArray(prev) ? [...prev] : [];
+                        updated[index] = { ...updated[index], organization: e.target.value };
+                        return updated;
+                      });
+                    }}
+                  />
+                  
+                  <input
+                    type="text"
+                    placeholder="Dates (e.g., 2020 - Present)"
+                    value={item.dates || item.date || ''}
+                    onChange={(e) => {
+                      setFormData(prev => {
+                        const updated = Array.isArray(prev) ? [...prev] : [];
+                        updated[index] = { ...updated[index], dates: e.target.value };
+                        return updated;
+                      });
+                    }}
+                  />
+                  
+                  <textarea
+                    placeholder="Description or details"
+                    value={item.description || ''}
+                    onChange={(e) => setFormData(prev => {
+                      const updated = Array.isArray(prev) ? [...prev] : [];
+                      updated[index] = { ...updated[index], description: e.target.value };
+                      return updated;
+                    })}
+                    rows={3}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <button 
+              type="button"
+              onClick={() => setFormData(prev => [...(Array.isArray(prev) ? prev : []), {}])}
+              className="add-item-btn"
+            >
+              + Add New Item
+            </button>
+          </div>
+        );
+
+      case 'tags':
+        return (
+          <div className="form-group">
+            <label>{isEditing ? 'Edit' : 'Add'} {section.name}</label>
+            <p className="form-help-text">
+              Add tags for your {section.name.toLowerCase()}. Each tag will be displayed as a separate item.
+            </p>
+            
+            <div className="tags-input-container">
+              <input
+                type="text"
+                placeholder="Add a new tag and press Enter"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const value = e.target.value.trim();
+                    if (value) {
+                      setFormData(prev => [...(Array.isArray(prev) ? prev : []), { name: value }]);
+                      e.target.value = '';
+                    }
+                  }
+                }}
+              />
+              
+              <div className="tags-list">
+                {safeMap(formData, (item, index) => (
+                  <span key={index} className="tag">
+                    {item.name}
+                    <button
+                      onClick={() => setFormData(prev =>
+                        (Array.isArray(prev) ? prev : []).filter((_, i) => i !== index)
+                      )}
+                      className="remove-tag"
+                      type="button"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'simple':
+      default:
+        return (
+          <div className="form-group">
+            <label>{section.name}</label>
+            <input
+              type="text"
+              value={formData.content || ''}
+              onChange={(e) => setFormData({ content: e.target.value })}
+              placeholder={`Enter your ${section.name.toLowerCase()}...`}
+            />
+            <p className="form-help-text">
+              This will be displayed as simple text in your CV.
+            </p>
+          </div>
+        );
+    }
+  };
 
   // Simplified skills form - just skill name
   const renderSkillsForm = () => {
@@ -172,12 +390,17 @@ const SectionFormModal = ({ section, cvData, setCvData, isOpen, onClose, onSave,
   };
 
   const renderForm = () => {
+    // Check if it's a custom section
+    if (section.id.startsWith('custom-')) {
+      return renderCustomSectionForm();
+    }
+
     // Special case for skills - use simplified form
     if (section.id === 'skills') {
       return renderSkillsForm();
     }
 
-    // ... rest of your renderForm function remains the same
+    // ... rest of your renderForm function for predefined sections
     switch (section.type) {
       case 'textarea':
         return (

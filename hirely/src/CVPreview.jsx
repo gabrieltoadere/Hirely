@@ -1,3 +1,4 @@
+// CVPreview.jsx
 import './CVPreview.css';
 
 const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
@@ -8,6 +9,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
 
   // Use the current page's sections or fallback to template sections
   const sectionsToRender = currentPageData.sections || template.sections;
+
+  // Get custom sections from cvData
+  const customSections = cvData.customSections || [];
 
   // Apply template-specific CSS classes and custom styles
   const getTemplateClass = () => {
@@ -38,43 +42,157 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
     };
   };
 
-    // Template-specific content rendering
-    const renderSection = (section) => {
-      const data = cvData || {};
-  
-    switch(section) {
-      // In CVPreview.jsx - update the header section
-    case 'header':
-      // Don't show header on subsequent pages if it's the same as first page
-      const isSubsequentPage = currentPage > 1;
-      const shouldShowHeader = !isSubsequentPage || 
-                              cvData.pages?.[currentPage - 1]?.sections?.includes('header');
-      
-      if (!shouldShowHeader) {
-        return null; // Don't render header on subsequent pages if not explicitly added
-      }
+  // Helper function to preserve line breaks in text
+  const formatTextWithLineBreaks = (text) => {
+    if (!text) return '';
+    
+    // Split by newlines and create React elements with breaks
+    return text.split('\n').map((line, index, array) => (
+      <span key={index}>
+        {line}
+        {index < array.length - 1 && <br />}
+      </span>
+    ));
+  };
 
+  // Helper function to get section info (for custom sections)
+  const getSectionInfo = (sectionId) => {
+    // Check if it's a custom section
+    if (sectionId.startsWith('custom-')) {
+      return customSections.find(s => s.id === sectionId) || { 
+        id: sectionId, 
+        name: 'Custom Section', 
+        icon: '📄' 
+      };
+    }
+    // Otherwise it's a predefined section
+    return null;
+  };
+
+  // Render custom section content
+  const renderCustomSection = (sectionId) => {
+    const sectionInfo = getSectionInfo(sectionId);
+    const customData = cvData.customSectionsData?.[sectionId];
+    
+    if (!sectionInfo) {
       return (
-        <div className="preview-header">
-          <h1 className="name">{data.personalInfo?.name || 'Your Name'}</h1>
-          {!isSubsequentPage && ( // Only show title/contact on first page
-            <>
-              <p className="title">{data.personalInfo?.title || 'Professional Title'}</p>
-              <div className="contact-info">
-                <span>📧 {data.personalInfo?.email || 'email@example.com'}</span>
-                <span>📱 {data.personalInfo?.phone || '(123) 456-7890'}</span>
-                <span>📍 {data.personalInfo?.location || 'City, Country'}</span>
-              </div>
-            </>
-          )}
-          {data.personalInfo?.summary && isSubsequentPage && (
-            <div className="summary">
-              <p>{data.personalInfo.summary}</p>
-            </div>
-          )}
+        <div className="preview-section">
+          <h2>{sectionId.charAt(0).toUpperCase() + sectionId.slice(1)}</h2>
+          <p>Content for {sectionId} section...</p>
         </div>
       );
-      
+    }
+
+    const sectionName = sectionInfo.name || 'Custom Section';
+
+    switch(sectionInfo.type) {
+      case 'textarea':
+        return (
+          <div className="preview-section custom-section">
+            <h2>{sectionName}</h2>
+            <div className="preserve-line-breaks">
+              {customData?.content ? formatTextWithLineBreaks(customData.content) : `Add your ${sectionName.toLowerCase()} content here...`}
+            </div>
+          </div>
+        );
+
+      case 'list':
+        const listItems = Array.isArray(customData) ? customData : [];
+        return (
+          <div className="preview-section custom-section">
+            <h2>{sectionName}</h2>
+            {listItems.length > 0 ? (
+              listItems.map((item, index) => (
+                <div key={index} className="custom-list-item">
+                  <h3>{item.title || item.name || `Item ${index + 1}`}</h3>
+                  {item.description && (
+                    <div className="preserve-line-breaks">
+                      {formatTextWithLineBreaks(item.description)}
+                    </div>
+                  )}
+                  {item.dates && <span className="dates">{item.dates}</span>}
+                </div>
+              ))
+            ) : (
+              <p>No items added yet. Add some content to your {sectionName.toLowerCase()}.</p>
+            )}
+          </div>
+        );
+
+      case 'tags':
+        const tags = Array.isArray(customData) ? customData : [];
+        return (
+          <div className="preview-section custom-section">
+            <h2>{sectionName}</h2>
+            <div className="tags-list">
+              {tags.length > 0 ? (
+                tags.map((tag, index) => (
+                  <span key={index} className="tag">
+                    {tag.name || tag}
+                  </span>
+                ))
+              ) : (
+                <p>No tags added yet.</p>
+              )}
+            </div>
+          </div>
+        );
+
+      case 'simple':
+      default:
+        return (
+          <div className="preview-section custom-section">
+            <h2>{sectionName}</h2>
+            <div className="preserve-line-breaks">
+              {customData?.content ? formatTextWithLineBreaks(customData.content) : `Content for ${sectionName} section...`}
+            </div>
+          </div>
+        );
+    }
+  };
+
+  // Template-specific content rendering
+  const renderSection = (section) => {
+    const data = cvData || {};
+
+    // Check if it's a custom section
+    if (section.startsWith('custom-')) {
+      return renderCustomSection(section);
+    }
+
+    switch(section) {
+      // In CVPreview.jsx - update the header section
+      case 'header':
+        // Don't show header on subsequent pages if it's the same as first page
+        const isSubsequentPage = currentPage > 1;
+        const shouldShowHeader = !isSubsequentPage || 
+                                cvData.pages?.[currentPage - 1]?.sections?.includes('header');
+        
+        if (!shouldShowHeader) {
+          return null; // Don't render header on subsequent pages if not explicitly added
+        }
+
+        return (
+          <div className="preview-header">
+            <h1 className="name">{data.personalInfo?.name || 'Your Name'}</h1>
+            {!isSubsequentPage && ( // Only show title/contact on first page
+              <>
+                <p className="title">{data.personalInfo?.title || 'Professional Title'}</p>
+                <div className="contact-info">
+                  <span>📧 {data.personalInfo?.email || 'email@example.com'}</span>
+                  <span>📱 {data.personalInfo?.phone || '(123) 456-7890'}</span>
+                  <span>📍 {data.personalInfo?.location || 'City, Country'}</span>
+                </div>
+              </>
+            )}
+            {data.personalInfo?.summary && isSubsequentPage && (
+              <div className="summary">
+                <p>{data.personalInfo.summary}</p>
+              </div>
+            )}
+          </div>
+        );
+        
       case 'experience':
         const experiences = data.experience || [{}];
         return (
@@ -87,7 +205,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                   <span className="dates">{exp.dates || 'Dates'}</span>
                 </div>
                 <p className="company">{exp.company || 'Company Name'}</p>
-                <p className="description">{exp.description || 'Job responsibilities and achievements...'}</p>
+                <div className="description preserve-line-breaks">
+                  {exp.description ? formatTextWithLineBreaks(exp.description) : 'Job responsibilities and achievements...'}
+                </div>
               </div>
             ))}
           </div>
@@ -105,6 +225,11 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                   <span className="dates">{edu.dates || 'Dates'}</span>
                 </div>
                 <p className="institution">{edu.institution || 'Institution Name'}</p>
+                {edu.description && (
+                  <div className="description preserve-line-breaks">
+                    {formatTextWithLineBreaks(edu.description)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -125,7 +250,11 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                     {skill.bulletPoints && skill.bulletPoints.length > 0 && (
                       <ul className="skill-bullets">
                         {skill.bulletPoints.map((bullet, bulletIndex) => (
-                          bullet && <li key={bulletIndex}>{bullet}</li>
+                          bullet && (
+                            <li key={bulletIndex} className="preserve-line-breaks">
+                              {formatTextWithLineBreaks(bullet)}
+                            </li>
+                          )
                         ))}
                       </ul>
                     )}
@@ -139,7 +268,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
         return (
           <div className="preview-section summary-section">
             <h2>Professional Summary</h2>
-            <p>{data.personalInfo?.summary || 'Experienced professional with a proven track record...'}</p>
+            <div className="preserve-line-breaks">
+              {data.personalInfo?.summary ? formatTextWithLineBreaks(data.personalInfo.summary) : 'Experienced professional with a proven track record...'}
+            </div>
           </div>
         );
       
@@ -154,7 +285,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                   <h3>{project.name || 'Project Name'}</h3>
                   <span className="dates">{project.dates || 'Dates'}</span>
                 </div>
-                <p className="description">{project.description || 'Project description...'}</p>
+                <div className="description preserve-line-breaks">
+                  {project.description ? formatTextWithLineBreaks(project.description) : 'Project description...'}
+                </div>
                 <p className="technologies">Technologies: {project.technologies || 'Tech used'}</p>
               </div>
             ))}
@@ -186,6 +319,11 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
               <div key={index} className="certification-item">
                 <h3>{cert.name || 'Certification Name'}</h3>
                 <p className="issuer">{cert.issuer || 'Issuing Organization'} | {cert.date || 'Date'}</p>
+                {cert.description && (
+                  <div className="description preserve-line-breaks">
+                    {formatTextWithLineBreaks(cert.description)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -199,7 +337,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
             {achievements.map((achievement, index) => (
               <div key={index} className="achievement-item">
                 <h3>{achievement.title || 'Achievement Title'}</h3>
-                <p>{achievement.description || 'Description of achievement...'}</p>
+                <div className="preserve-line-breaks">
+                  {achievement.description ? formatTextWithLineBreaks(achievement.description) : 'Description of achievement...'}
+                </div>
                 <span className="date">{achievement.date || 'Date'}</span>
               </div>
             ))}
@@ -215,6 +355,11 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
               <div key={index} className="publication-item">
                 <h3>{pub.title || 'Publication Title'}</h3>
                 <p className="journal">{pub.journal || 'Journal/Conference'} | {pub.date || 'Date'}</p>
+                {pub.description && (
+                  <div className="description preserve-line-breaks">
+                    {formatTextWithLineBreaks(pub.description)}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -240,7 +385,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
                   <span className="dates">{vol.dates || 'Dates'}</span>
                 </div>
                 <p className="organization">{vol.organization || 'Organization'}</p>
-                <p className="description">{vol.description || 'Volunteer work description...'}</p>
+                <div className="description preserve-line-breaks">
+                  {vol.description ? formatTextWithLineBreaks(vol.description) : 'Volunteer work description...'}
+                </div>
               </div>
             ))}
           </div>

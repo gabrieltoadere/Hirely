@@ -8,24 +8,28 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
   const [showFormModal, setShowFormModal] = useState(false);
   const [selectedSection, setSelectedSection] = useState(null);
   const [isEditingExisting, setIsEditingExisting] = useState(false);
+  const [showCustomSectionModal, setShowCustomSectionModal] = useState(false);
 
   const availableSections = [
-  { id: 'summary', name: 'Professional Summary', icon: '📝', type: 'textarea' },
-  { id: 'experience', name: 'Work Experience', icon: '💼', type: 'list' },
-  { id: 'education', name: 'Education', icon: '🎓', type: 'list' },
-  { id: 'skills', name: 'Skills', icon: '⚡', type: 'skills' },
-  { id: 'projects', name: 'Projects', icon: '🚀', type: 'list' },
-  { id: 'languages', name: 'Languages', icon: '🌎', type: 'list' },
-  { id: 'certifications', name: 'Certifications', icon: '🏆', type: 'list' },
-  { id: 'achievements', name: 'Achievements', icon: '⭐', type: 'list' },
-  { id: 'publications', name: 'Publications', icon: '📚', type: 'list' },
-  { id: 'references', name: 'References', icon: '👥', type: 'simple' },
-  { id: 'volunteer', name: 'Volunteer Experience', icon: '❤️', type: 'list' },
-  { id: 'interests', name: 'Interests', icon: '🎯', type: 'tags' }
-];
+    { id: 'summary', name: 'Professional Summary', icon: '📝', type: 'textarea' },
+    { id: 'experience', name: 'Work Experience', icon: '💼', type: 'list' },
+    { id: 'education', name: 'Education', icon: '🎓', type: 'list' },
+    { id: 'skills', name: 'Skills', icon: '⚡', type: 'skills' },
+    { id: 'projects', name: 'Projects', icon: '🚀', type: 'list' },
+    { id: 'languages', name: 'Languages', icon: '🌎', type: 'list' },
+    { id: 'certifications', name: 'Certifications', icon: '🏆', type: 'list' },
+    { id: 'achievements', name: 'Achievements', icon: '⭐', type: 'list' },
+    { id: 'publications', name: 'Publications', icon: '📚', type: 'list' },
+    { id: 'references', name: 'References', icon: '👥', type: 'simple' },
+    { id: 'volunteer', name: 'Volunteer Experience', icon: '❤️', type: 'list' },
+    { id: 'interests', name: 'Interests', icon: '🎯', type: 'tags' }
+  ];
 
   const currentPageData = cvData.pages?.find(page => page.id === currentPage) || cvData.pages[0];
   const currentSections = currentPageData.sections || [];
+
+  // Get custom sections from cvData
+  const customSections = cvData.customSections || [];
 
   const addSection = (section) => {
     setCvData(prev => {
@@ -44,9 +48,53 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     setShowSectionModal(false);
   };
 
+  const addCustomSection = (customSectionData) => {
+    const customSectionId = `custom-${Date.now()}`;
+    const newCustomSection = {
+      id: customSectionId,
+      name: customSectionData.name,
+      icon: customSectionData.icon || '📄',
+      type: customSectionData.type || 'simple'
+    };
+
+    setCvData(prev => {
+      // Add to custom sections array
+      const updatedCustomSections = [...(prev.customSections || []), newCustomSection];
+      
+      // Add to current page sections
+      const updatedPages = prev.pages.map(page => 
+        page.id === currentPage 
+          ? { ...page, sections: [...page.sections, customSectionId] }
+          : page
+      );
+
+      return { 
+        ...prev, 
+        customSections: updatedCustomSections,
+        pages: updatedPages 
+      };
+    });
+
+    setShowCustomSectionModal(false);
+    
+    // Open the form modal for the new custom section
+    setSelectedSection(newCustomSection);
+    setIsEditingExisting(false);
+    setShowFormModal(true);
+  };
+
   const editSection = (sectionId) => {
-    const section = availableSections.find(s => s.id === sectionId);
-    setSelectedSection(section);
+    // Check if it's a custom section or predefined section
+    const isCustomSection = sectionId.startsWith('custom-');
+    
+    if (isCustomSection) {
+      const section = customSections.find(s => s.id === sectionId);
+      setSelectedSection(section);
+    } else {
+      const section = availableSections.find(s => s.id === sectionId);
+      setSelectedSection(section);
+    }
+    
     setIsEditingExisting(true);
     setShowFormModal(true);
   };
@@ -55,12 +103,24 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     if (sectionId === 'header') return;
     
     setCvData(prev => {
+      // Remove from page sections
       const updatedPages = prev.pages.map(page => 
         page.id === currentPage 
           ? { ...page, sections: page.sections.filter(s => s !== sectionId) }
           : page
       );
-      return { ...prev, pages: updatedPages };
+
+      // If it's a custom section, also remove from customSections array
+      let updatedCustomSections = prev.customSections;
+      if (sectionId.startsWith('custom-')) {
+        updatedCustomSections = (prev.customSections || []).filter(s => s.id !== sectionId);
+      }
+
+      return { 
+        ...prev, 
+        pages: updatedPages,
+        customSections: updatedCustomSections
+      };
     });
   };
 
@@ -79,7 +139,36 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     });
   };
 
+  const getSectionInfo = (sectionId) => {
+    // Check if it's a custom section
+    if (sectionId.startsWith('custom-')) {
+      return customSections.find(s => s.id === sectionId) || { 
+        id: sectionId, 
+        name: 'Custom Section', 
+        icon: '📄' 
+      };
+    }
+    // Otherwise it's a predefined section
+    return availableSections.find(s => s.id === sectionId) || { 
+      id: sectionId, 
+      name: sectionId, 
+      icon: '📄' 
+    };
+  };
+
   const getSectionDataCount = (sectionId) => {
+    // For custom sections, check cvData.customSectionsData or similar structure
+    if (sectionId.startsWith('custom-')) {
+      const customData = cvData.customSectionsData?.[sectionId];
+      if (!customData) return 0;
+      
+      if (Array.isArray(customData)) {
+        return customData.length;
+      }
+      return Object.keys(customData).length > 0 ? 1 : 0;
+    }
+
+    // For predefined sections
     const data = cvData[sectionId === 'summary' ? 'personalInfo' : sectionId];
     if (!data) return 0;
     
@@ -99,6 +188,12 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
     section => !currentSections.includes(section.id)
   );
 
+  // Combine predefined and custom sections for display
+  const allCurrentSections = currentSections.map(sectionId => ({
+    id: sectionId,
+    ...getSectionInfo(sectionId)
+  }));
+
   return (
     <div className="section-manager">
       <div className="section-manager-header">
@@ -106,26 +201,27 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
         <button 
           onClick={() => setShowSectionModal(true)}
           className="add-section-btn"
-          disabled={unusedSections.length === 0}
         >
           + Add Section
         </button>
       </div>
 
       <div className="sections-list">
-        {currentSections.map((sectionId, index) => {
-          const sectionInfo = availableSections.find(s => s.id === sectionId);
-          const dataCount = getSectionDataCount(sectionId);
+        {allCurrentSections.map((section, index) => {
+          const dataCount = getSectionDataCount(section.id);
           
           return (
-            <div key={sectionId} className="section-item">
+            <div key={section.id} className="section-item">
               <div 
                 className="section-info"
-                onClick={() => editSection(sectionId)}
+                onClick={() => editSection(section.id)}
                 style={{ cursor: 'pointer' }}
               >
-                <span className="section-icon">{sectionInfo?.icon || '📄'}</span>
-                <span className="section-name">{sectionInfo?.name || sectionId}</span>
+                <span className="section-icon">{section.icon}</span>
+                <span className="section-name">{section.name}</span>
+                {section.id.startsWith('custom-') && (
+                  <span className="custom-badge">Custom</span>
+                )}
                 {dataCount > 0 && (
                   <span className="data-count">{getCountIcon(dataCount)}</span>
                 )}
@@ -145,7 +241,7 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
                   </button>
                 )}
                 
-                {index < currentSections.length - 1 && (
+                {index < allCurrentSections.length - 1 && (
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
@@ -158,11 +254,11 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
                   </button>
                 )}
                 
-                {sectionId !== 'header' && (
+                {section.id !== 'header' && (
                   <button 
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeSection(sectionId);
+                      removeSection(section.id);
                     }}
                     className="remove-btn"
                     title="Remove section"
@@ -198,7 +294,39 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
                   <span className="section-name">{section.name}</span>
                 </div>
               ))}
+              
+              {/* Custom Section Option */}
+              <div 
+                className="section-option custom-section-option"
+                onClick={() => {
+                  setShowSectionModal(false);
+                  setShowCustomSectionModal(true);
+                }}
+              >
+                <span className="section-icon">✨</span>
+                <span className="section-name">Custom Section</span>
+                <span className="custom-tag">New</span>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Section Creation Modal */}
+      {showCustomSectionModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Create Custom Section</h3>
+              <button onClick={() => setShowCustomSectionModal(false)} className="close-btn">
+                ×
+              </button>
+            </div>
+            
+            <CustomSectionForm 
+              onSubmit={addCustomSection}
+              onCancel={() => setShowCustomSectionModal(false)}
+            />
           </div>
         </div>
       )}
@@ -214,6 +342,79 @@ const SectionManager = ({ template, cvData, setCvData, currentPage }) => {
         isEditing={isEditingExisting}
       />
     </div>
+  );
+};
+
+// Custom Section Form Component
+const CustomSectionForm = ({ onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    icon: '📄',
+    type: 'simple'
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) {
+      alert('Please enter a section name');
+      return;
+    }
+    onSubmit(formData);
+  };
+
+  const iconOptions = ['📄', '✨', '⭐', '🎯', '🏅', '📊', '💡', '🔧', '🎨', '🌐'];
+
+  return (
+    <form onSubmit={handleSubmit} className="custom-section-form">
+      <div className="form-group">
+        <label>Section Name *</label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={(e) => setFormData({...formData, name: e.target.value})}
+          placeholder="e.g., Publications, Awards, Portfolio"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label>Icon</label>
+        <div className="icon-selector">
+          {iconOptions.map(icon => (
+            <button
+              key={icon}
+              type="button"
+              className={`icon-option ${formData.icon === icon ? 'selected' : ''}`}
+              onClick={() => setFormData({...formData, icon})}
+            >
+              {icon}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Content Type</label>
+        <select
+          value={formData.type}
+          onChange={(e) => setFormData({...formData, type: e.target.value})}
+        >
+          <option value="simple">Simple Text</option>
+          <option value="list">List Items</option>
+          <option value="textarea">Paragraph</option>
+          <option value="tags">Tags</option>
+        </select>
+      </div>
+
+      <div className="form-actions">
+        <button type="button" onClick={onCancel} className="cancel-btn">
+          Cancel
+        </button>
+        <button type="submit" className="submit-btn">
+          Create Section
+        </button>
+      </div>
+    </form>
   );
 };
 

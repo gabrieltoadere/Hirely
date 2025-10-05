@@ -1,5 +1,4 @@
 
-/* Update your CSS to use variables */
 .template-modern {
   font-family: var(--body-font, 'Segoe UI', sans-serif);
   background: var(--background-color, #ffffff);
@@ -18,7 +17,6 @@
   background: var(--primary-color, #2563eb);
 }
 
-/* Add this to base styles */
 .cv-preview {
   font-size: var(--font-size, 16px);
   width: 100%;
@@ -26,9 +24,8 @@
   background: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   font-family: Arial, sans-serif;
-  /* A4 aspect ratio: 210mm x 297mm = 1:1.414 */
   aspect-ratio: 1 / 1.414;
-  max-height: 80vh; /* Prevent it from being too tall */
+  max-height: 80vh; 
 
 }
 .preview-content {
@@ -39,12 +36,10 @@
   flex-direction: column;
 }
 
-/* Ensure content fills the A4 ratio */
 .cv-preview .preview-section {
   flex: 1;
 }
 
-/* Add some spacing between sections */
 .preview-section {
   margin-bottom: 1.5rem;
 }
@@ -53,12 +48,6 @@
   margin-bottom: 0;
 }
 
-
-/* CVPreview.css */
-
-/* Add CSS variables at the top */
-
-/* ===== MODERN TEMPLATE ===== */
 .template-modern {
   font-family: var(--body-font, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif);
   background: var(--background-color, #ffffff);
@@ -154,7 +143,6 @@
   font-size: 0.9em;
 }
 
-/* ===== CREATIVE TEMPLATE ===== */
 .template-creative {
   font-family: var(--body-font, 'Arial', sans-serif);
   background: linear-gradient(135deg, #f8fafc 0%, var(--background-color, #ffffff) 100%);
@@ -242,7 +230,6 @@
   border: 2px solid #e5e7eb;
 }
 
-/* ===== CLASSIC TEMPLATE ===== */
 .template-classic {
   font-family: var(--body-font, 'Times New Roman', Times, serif);
   background: var(--background-color, #ffffff);
@@ -324,7 +311,6 @@
   border: 1px solid #ddd;
 }
 
-/* ===== MINIMAL TEMPLATE ===== */
 .template-minimal {
   font-family: var(--body-font, 'Helvetica Neue', Arial, sans-serif);
   background: var(--background-color, #ffffff);
@@ -411,7 +397,6 @@
   border-radius: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .preview-content {
     padding: 20px;
@@ -434,7 +419,6 @@
   }
 }
 
-/* Add to CVPreview.css */
 .page-indicator {
   text-align: center;
   font-size: 0.8rem;
@@ -445,7 +429,6 @@
   border-radius: 4px;
 }
 
-/* New section styles for additional content types */
 .projects-section .project-item,
 .languages-section .language-item,
 .certifications-section .certification-item,
@@ -486,7 +469,6 @@
   font-size: 0.9rem;
 }
 
-/* CVPreview.css additions for skills with bullet points */
 .skills-detailed-list {
   display: flex;
   flex-direction: column;
@@ -526,7 +508,6 @@
   color: var(--text-color, #374151);
 }
 
-/* Keep the original skills list style for empty state */
 .skills-list {
   display: flex;
   flex-wrap: wrap;
@@ -540,4 +521,75 @@
   border-radius: 16px;
   font-size: 0.9em;
   display: inline-block;
+}
+
+.custom-section {
+  margin-bottom: 1.5rem;
+}
+
+.custom-list-item {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.custom-list-item:last-child {
+  border-bottom: none;
+}
+
+.custom-list-item h3 {
+  margin: 0 0 0.5rem 0;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.custom-list-item p {
+  margin: 0.5rem 0;
+  color: #6b7280;
+}
+
+.custom-list-item .dates {
+  color: #9ca3af;
+  font-size: 0.9rem;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+.preserve-line-breaks {
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+.description.preserve-line-breaks,
+.summary-section .preserve-line-breaks,
+.custom-section .preserve-line-breaks {
+  margin-top: 0.5rem;
+}
+
+.skill-bullets .preserve-line-breaks {
+  white-space: pre-line;
+  line-height: 1.4;
+}
+
+.experience-item .description,
+.education-item .description,
+.project-item .description,
+.certification-item .description,
+.achievement-item .preserve-line-breaks,
+.publication-item .description,
+.volunteer-item .description {
+  white-space: pre-line;
+  line-height: 1.5;
 }
