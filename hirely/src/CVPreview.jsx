@@ -179,9 +179,9 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
               <>
                 <p className="title">{data.personalInfo?.title || 'Professional Title'}</p>
                 <div className="contact-info">
-                  <span>📧 {data.personalInfo?.email || 'email@example.com'}</span>
-                  <span>📱 {data.personalInfo?.phone || '(123) 456-7890'}</span>
-                  <span>📍 {data.personalInfo?.location || 'City, Country'}</span>
+                  <span>{data.personalInfo?.email || 'email@example.com'}</span>
+                  <span>{data.personalInfo?.phone || '(123) 456-7890'}</span>
+                  <span>{data.personalInfo?.location || 'City, Country'}</span>
                 </div>
               </>
             )}

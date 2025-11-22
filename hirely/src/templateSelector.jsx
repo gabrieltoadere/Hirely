@@ -75,9 +75,6 @@ const TemplateSelector = ({ onTemplateSelect, currentTemplate }) => {
                 <span className="layout-badge">
                   {template.layout === 'single-column' ? 'Single Column' : 'Two Columns'}
                 </span>
-                <span className="sections-count">
-                  {template.sections.length} sections
-                </span>
               </div>
               
               <button className="select-template-btn">

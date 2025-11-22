@@ -593,3 +593,383 @@
   white-space: pre-line;
   line-height: 1.5;
 }
+
+.template-executive {
+  font-family: var(--body-font, 'Georgia', serif);
+  background: var(--background-color, #ffffff);
+  color: var(--text-color, #1f2937);
+}
+
+.template-executive .preview-content {
+  padding: 50px 60px;
+}
+
+.template-executive .preview-header {
+  text-align: left;
+  border-bottom: 3px solid var(--primary-color, #059669);
+  padding-bottom: 24px;
+  margin-bottom: 28px;
+}
+
+.template-executive .name {
+  font-family: var(--heading-font, 'Georgia', serif);
+  font-size: 2.6em;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0 0 6px 0;
+  color: var(--primary-color, #059669);
+}
+
+.template-executive .title {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--secondary-color, #047857);
+  margin: 0 0 14px 0;
+}
+
+.template-executive .contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.95em;
+  color: #4b5563;
+}
+
+.template-executive .contact-info span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.template-executive .contact-info span::before {
+  content: "•";
+  margin-right: 8px;
+  color: var(--primary-color, #059669);
+}
+
+.template-executive .contact-info span:first-child::before {
+  content: "";
+  margin-right: 0;
+}
+
+.template-executive .preview-section {
+  margin-bottom: 26px;
+}
+
+.template-executive .preview-section h2 {
+  font-family: var(--heading-font, 'Georgia', serif);
+  font-size: 1.15em;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--primary-color, #059669);
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.template-executive .experience-item,
+.template-executive .education-item,
+.template-executive .project-item,
+.template-executive .achievement-item,
+.template-executive .volunteer-item,
+.template-executive .publication-item,
+.template-executive .certification-item {
+  margin-bottom: 18px;
+}
+
+.template-executive .experience-header,
+.template-executive .education-header,
+.template-executive .project-header,
+.template-executive .volunteer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 4px;
+}
+
+.template-executive .experience-header h3,
+.template-executive .education-header h3,
+.template-executive .project-header h3 {
+  margin: 0;
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+.template-executive .dates,
+.template-executive .achievement-item .date {
+  font-size: 0.85em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
+}
+
+.template-executive .company,
+.template-executive .institution,
+.template-executive .organization,
+.template-executive .issuer,
+.template-executive .journal {
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+
+.template-executive .description,
+.template-executive .summary-section .preserve-line-breaks,
+.template-executive .custom-section .preserve-line-breaks {
+  font-size: 0.95em;
+  line-height: 1.6;
+}
+
+.template-executive .skills-detailed-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px 24px;
+}
+
+.template-executive .skill-item {
+  margin-bottom: 4px;
+}
+
+.template-executive .skill-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.template-executive .skill-name {
+  color: var(--primary-color, #059669);
+  font-weight: 600;
+}
+
+.template-executive .skill-level {
+  font-size: 0.8em;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.template-executive .skill-bullets {
+  margin-top: 4px;
+  padding-left: 18px;
+}
+
+.template-executive .skill-bullets li {
+  margin-bottom: 3px;
+}
+
+.template-executive .language-item,
+.template-executive .interest-tag,
+.template-executive .tags-list .tag {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.9em;
+  color: #374151;
+}
+
+.template-executive .language-level {
+  margin-left: 4px;
+  color: #6b7280;
+  font-size: 0.85em;
+}
+
+/* === TECHNICAL TEMPLATE === */
+
+.template-technical {
+  font-family: var(--body-font, 'Arial', sans-serif);
+  background: var(--background-color, #ffffff);
+  color: var(--text-color, #374151);
+}
+
+.template-technical .preview-content {
+  padding: 32px 40px;
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr;
+  grid-auto-rows: min-content;
+  gap: 20px 32px;
+}
+
+.template-technical .section-header {
+  grid-column: 1 / -1;
+}
+
+.template-technical .section-summary,
+.template-technical .section-skills,
+.template-technical .section-languages {
+  grid-column: 1;
+}
+
+.template-technical .section-experience,
+.template-technical .section-projects,
+.template-technical .section-education {
+  grid-column: 2;
+}
+
+.template-technical .preview-header {
+  border-bottom: 2px solid var(--primary-color, #dc2626);
+  padding-bottom: 18px;
+  margin-bottom: 4px;
+}
+
+.template-technical .name {
+  font-family: var(--heading-font, 'Courier New', monospace);
+  font-size: 2.4em;
+  margin: 0 0 4px 0;
+  color: var(--primary-color, #dc2626);
+}
+
+.template-technical .title {
+  font-family: var(--heading-font, 'Courier New', monospace);
+  font-size: 1.1em;
+  color: #4b5563;
+  margin: 0 0 10px 0;
+}
+
+.template-technical .contact-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.9em;
+  color: #6b7280;
+}
+
+.template-technical .contact-info span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.template-technical .contact-info span::before {
+  content: "◦";
+  color: var(--primary-color, #dc2626);
+}
+
+.template-technical .preview-section {
+  margin-bottom: 0;
+}
+
+.template-technical .preview-section h2 {
+  font-family: var(--heading-font, 'Courier New', monospace);
+  font-size: 0.95em;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--primary-color, #dc2626);
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.template-technical .preview-section h2::before {
+  content: "</>";
+  font-size: 0.9em;
+  color: var(--secondary-color, #b91c1c);
+}
+
+.template-technical .experience-item,
+.template-technical .education-item,
+.template-technical .project-item {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid rgba(220, 38, 38, 0.25);
+  background: #f9fafb;
+}
+
+.template-technical .experience-header,
+.template-technical .education-header,
+.template-technical .project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.template-technical .experience-header h3,
+.template-technical .education-header h3,
+.template-technical .project-header h3 {
+  margin: 0;
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.template-technical .dates {
+  font-size: 0.8em;
+  color: #6b7280;
+}
+
+.template-technical .company,
+.template-technical .institution,
+.template-technical .technologies,
+.template-technical .issuer,
+.template-technical .journal {
+  font-size: 0.85em;
+  color: #6b7280;
+}
+
+.template-technical .skills-section {
+  align-self: flex-start;
+}
+
+.template-technical .skills-detailed-list {
+  border-radius: 6px;
+  border: 1px dashed rgba(148, 163, 184, 0.9);
+  padding: 10px 12px;
+  background: #f9fafb;
+}
+
+.template-technical .skill-item {
+  margin-bottom: 6px;
+}
+
+.template-technical .skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.template-technical .skill-name {
+  font-family: var(--heading-font, 'Courier New', monospace);
+  font-weight: 600;
+  color: var(--primary-color, #dc2626);
+}
+
+.template-technical .skill-level {
+  font-size: 0.75em;
+  color: #6b7280;
+}
+
+.template-technical .skill-bullets {
+  margin-top: 4px;
+  padding-left: 18px;
+}
+
+.template-technical .skill-bullets li::marker {
+  content: "▹ ";
+  color: var(--primary-color, #dc2626);
+}
+
+.template-technical .languages-list,
+.template-technical .interests-list {
+  gap: 6px;
+}
+
+.template-technical .language-item,
+.template-technical .interest-tag {
+  background: #0f172a;
+  color: #e5e7eb;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.8em;
+}
+
+@media (max-width: 768px) {
+  .template-technical .preview-content {
+    display: block;
+    padding: 24px 20px;
+  }
+}
+

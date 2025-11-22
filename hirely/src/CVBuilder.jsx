@@ -1,9 +1,9 @@
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { pdf } from "@react-pdf/renderer";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './CVBuilder.css';
 import CVPreview from './CVPreview';
 import CustomizationPanel from './CustomizationPanel';
+import PDFDocument from "./PDFDocument";
 import PageManager from './PageManager';
 import SectionManager from './SectionManager';
 import TemplateSelector from './templateSelector';
@@ -314,79 +314,22 @@ const CVBuilder = ({onEditingStateChange}) => {
     alert('All content has been redistributed across pages.');
   };
 
+
   const exportToPDF = async () => {
     setIsGeneratingPDF(true);
-    
-    try {
-      // Do a final overflow check and redistribution
-      redistributeAllContent();
-      
-      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Create a temporary container
-      const tempContainer = document.createElement('div');
-      tempContainer.style.cssText = `
-        position: fixed;
-        top: -10000px;
-        left: -10000px;
-        width: 210mm;
-        z-index: 10000;
-        background: white;
-      `;
-      document.body.appendChild(tempContainer);
+    const blob = await pdf(
+      <PDFDocument cvData={cvData} />
+    ).toBlob();
 
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = 210;
-      const pageHeight = 297;
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "my-cv.pdf";
+    link.click();
 
-      // Use the actual print view content
-      const printContainer = document.getElementById('cv-print-container');
-      if (!printContainer) {
-        setShowPrintView(true);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      const printPages = document.querySelectorAll('.print-page');
-      
-      for (let i = 0; i < printPages.length; i++) {
-        const pageElement = printPages[i];
-        
-        const canvas = await html2canvas(pageElement, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          backgroundColor: '#ffffff',
-          logging: false,
-          width: pageElement.scrollWidth,
-          height: pageElement.scrollHeight,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: pageElement.scrollWidth,
-          windowHeight: pageElement.scrollHeight
-        });
-
-        const imgData = canvas.toDataURL('image/png', 1.0);
-        
-        if (i > 0) {
-          pdf.addPage();
-        }
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, '', 'FAST');
-      }
-
-      // Clean up
-      document.body.removeChild(tempContainer);
-      
-      // Save PDF
-      pdf.save('my-cv.pdf');
-      
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error generating PDF. Please try again.');
-    } finally {
-      setIsGeneratingPDF(false);
-    }
+    setIsGeneratingPDF(false);
   };
+
 
   const handleClosePrintView = () => {
     setShowPrintView(false);
@@ -439,6 +382,14 @@ const CVBuilder = ({onEditingStateChange}) => {
             }}
           >
             PDF Preview
+          </button>
+          <button
+            onClick={() => {
+              console.log("cvData SAMPLE:", JSON.stringify(cvData, null, 2));
+              alert("Check the console for cvData output.");
+            }}
+          >
+            Log CV Data
           </button>
 
           <button 

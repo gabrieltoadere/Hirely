@@ -1,4 +1,3 @@
-// templates.js
 export const CV_TEMPLATES = [
   {
     id: 'modern',
