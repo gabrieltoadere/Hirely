@@ -1,9 +1,9 @@
-import { pdf } from "@react-pdf/renderer";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './CVBuilder.css';
 import CVPreview from './CVPreview';
 import CustomizationPanel from './CustomizationPanel';
-import PDFDocument from "./PDFDocument";
 import PageManager from './PageManager';
 import SectionManager from './SectionManager';
 import TemplateSelector from './templateSelector';
@@ -33,7 +33,7 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
         height: '100vh', 
         background: 'white', 
         zIndex: 10000, 
-        padding: '20px', 
+        padding: '0px', 
         overflow: 'auto',
         boxSizing: 'border-box'
       }}>
@@ -64,7 +64,6 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
         width: '100%', 
         maxWidth: '210mm', 
         margin: '0 auto',
-        paddingTop: '60px'
       }}>
         {cvData.pages.map((page) => (
           <div 
@@ -72,10 +71,11 @@ const PrintView = ({ cvData, template, customization, onClose }) => {
             className="cv-page print-page"
             style={{
               width: '210mm',
-              minHeight: '297mm',
+              height: 'auto',
+              minHeight: '0',
+              overflow: 'auto',
               background: 'white',
-              margin: '0 auto 10mm auto',
-              padding: '15mm',
+              margin: '0 auto',
               boxShadow: '0 0 20px rgba(0,0,0,0.2)',
               boxSizing: 'border-box',
               position: 'relative'
@@ -318,14 +318,49 @@ const CVBuilder = ({onEditingStateChange}) => {
   const exportToPDF = async () => {
     setIsGeneratingPDF(true);
 
-    const blob = await pdf(
-      <PDFDocument cvData={cvData} />
-    ).toBlob();
+    try {
+      setShowPrintView(true);
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "my-cv.pdf";
-    link.click();
+      const content = document.querySelector(".print-page .preview-content");
+      if (!content) return alert("preview-content not found");
+
+      const canvas = await html2canvas(content, {
+        scale: 8,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+
+      // Convert pixels → mm
+      const pxToMm = px => px * 0.264583;
+
+      // FIX: Set width to A4 (210mm)
+      const pdfWidthMm = 210;
+
+      // Convert canvas width to mm
+      const canvasWidthMm = pxToMm(canvas.width);
+      const canvasHeightMm = pxToMm(canvas.height);
+
+      // Scale the height proportionally to the fixed A4 width
+      const pdfHeightMm = (pdfWidthMm / canvasWidthMm) * canvasHeightMm;
+
+      // Now create a PDF page with EXACT scaled height
+      const pdf = new jsPDF({
+        orientation: "p",
+        unit: "mm",
+        format: [pdfWidthMm, pdfHeightMm]
+      });
+
+      pdf.addImage(imgData, "PNG", 0, 0, pdfWidthMm, pdfHeightMm);
+
+      pdf.save("my-cv.pdf");
+
+    } catch (err) {
+      console.error("PDF Error:", err);
+      alert("Error generating PDF.");
+    }
 
     setIsGeneratingPDF(false);
   };

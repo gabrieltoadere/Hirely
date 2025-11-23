@@ -26,7 +26,6 @@
   font-family: Arial, sans-serif;
   aspect-ratio: 1 / 1.414;
   max-height: 80vh; 
-
 }
 .preview-content {
   padding: 40px;
@@ -38,6 +37,13 @@
 
 .cv-preview .preview-section {
   flex: 1;
+}
+
+.cv-preview .preview-section,
+.cv-preview .preview-section * {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .preview-section {
@@ -132,7 +138,6 @@
 .template-modern .skills-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
 }
 
 .template-modern .skill-tag {
@@ -472,7 +477,6 @@
 .skills-detailed-list {
   display: flex;
   flex-direction: column;
-  gap: 15px;
 }
 
 .skill-item {
@@ -785,15 +789,43 @@
 }
 
 .template-technical .preview-content {
-  padding: 32px 40px;
-  display: grid;
-  grid-template-columns: 0.9fr 1.4fr;
-  grid-auto-rows: min-content;
-  gap: 20px 32px;
+  padding: 16px 30px;
+  display: block;        /* <- IMPORTANT */
+  position: relative;
+}
+
+.template-technical .preview-body-grid {
+  display: flex;
+  gap: 32px;
+}
+
+.template-technical .preview-left-col {
+  width: 70%;
+}
+
+.template-technical .preview-right-col {
+  width: 30%;
+}
+
+.template-technical .preview-body-wrapper {
+  position: relative;
+  height: calc(100% - var(--header-height, 180px)); /* default 180px */
+}
+
+.template-technical .preview-body-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 70%;
+  width: 1.2px;
+  background: rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .template-technical .section-header {
-  grid-column: 1 / -1;
+  grid-column: 1 / -1 !important;
 }
 
 .template-technical .section-summary,
@@ -810,8 +842,8 @@
 
 .template-technical .preview-header {
   border-bottom: 2px solid var(--primary-color, #dc2626);
-  padding-bottom: 18px;
-  margin-bottom: 4px;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
 }
 
 .template-technical .name {
@@ -848,7 +880,7 @@
 }
 
 .template-technical .preview-section {
-  margin-bottom: 0;
+  margin-bottom: 22px;
 }
 
 .template-technical .preview-section h2 {
@@ -875,7 +907,7 @@
   margin-bottom: 12px;
   padding: 10px 12px;
   border-radius: 6px;
-  border-left: 3px solid rgba(220, 38, 38, 0.25);
+  border-left: 3px solid rgba(0, 0, 0, 0.25);
   background: #f9fafb;
 }
 
@@ -973,3 +1005,29 @@
   }
 }
 
+.template-technical .section-summary,
+.template-technical .section-experience,
+.template-technical .section-education,
+.template-technical .section-projects,
+.template-technical .section-achievements,
+.template-technical .section-publications,
+.template-technical .section-volunteer {
+  grid-column: 1;
+}
+
+.template-technical 
+  .section-skills,
+  .section-languages,
+  .section-certifications,
+  .section-interests,
+  .section-custom {
+    grid-column: 2;
+}
+
+.template-technical .section-skills,
+.template-technical .section-languages,
+.template-technical .section-certifications,
+.template-technical .section-interests,
+.template-technical .section-custom {
+  margin-bottom: 16px;
+}

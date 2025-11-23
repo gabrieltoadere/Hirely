@@ -104,7 +104,7 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
             {listItems.length > 0 ? (
               listItems.map((item, index) => (
                 <div key={index} className="custom-list-item">
-                  <h3>{item.title || item.name || `Item ${index + 1}`}</h3>
+                  <h3>{item.title || item.name }</h3>
                   {item.description && (
                     <div className="preserve-line-breaks">
                       {formatTextWithLineBreaks(item.description)}
@@ -418,24 +418,77 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
     }
   };
 
+  const leftColumnSections = [
+    "summary",
+    "experience",
+    "education",
+    "projects",
+    "achievements",
+    "publications",
+    "volunteer"
+  ];
+
+  const rightColumnSections = [
+    "skills",
+    "languages",
+    "certifications",
+    "interests"
+  ];
+
+  const isCustomSection = (section) => section.startsWith("custom-");
+
   return (
     <div 
       className={getTemplateClass()} 
       style={getCustomStyles()}
     >
       <div className="preview-content">
-        {/* Page indicator (optional - you can remove this if you don't want it) */}
+        {/* page indicator*/}
         {cvData.pages?.length > 1 && (
           <div className="page-indicator">
             Page {cvData.pages.findIndex(page => page.id === currentPage) + 1} of {cvData.pages.length}
           </div>
         )}
         
-        {sectionsToRender.map(section => (
-          <div key={section} className={`section-${section}`}>
-            {renderSection(section)}
+        {/* Render header full-width */}
+        {sectionsToRender.includes("header") && (
+          <div className="section-header">
+            {renderSection("header")}
           </div>
-        ))}
+        )}
+
+        {/* Render the rest inside the grid */}
+        <div className="preview-body-wrapper">
+          <div className="preview-body-grid">
+
+            {/* LEFT COLUMN */}
+            <div className="preview-left-col">
+              {sectionsToRender
+                .filter(section => 
+                  leftColumnSections.includes(section)
+                )
+                .map(section => (
+                  <div key={section} className={`section-${section}`}>
+                    {renderSection(section)}
+                  </div>
+                ))}
+            </div>
+
+            {/* RIGHT COLUMN */}
+            <div className="preview-right-col">
+              {sectionsToRender
+                .filter(section => 
+                  rightColumnSections.includes(section) ||
+                  isCustomSection(section)
+                )
+                .map(section => (
+                  <div key={section} className={`section-${section}`}>
+                    {renderSection(section)}
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
