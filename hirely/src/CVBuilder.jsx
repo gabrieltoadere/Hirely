@@ -418,14 +418,6 @@ const CVBuilder = ({onEditingStateChange}) => {
           >
             PDF Preview
           </button>
-          <button
-            onClick={() => {
-              console.log("cvData SAMPLE:", JSON.stringify(cvData, null, 2));
-              alert("Check the console for cvData output.");
-            }}
-          >
-            Log CV Data
-          </button>
 
           <button 
             onClick={manualOverflowCheck}
