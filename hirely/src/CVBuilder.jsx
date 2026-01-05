@@ -326,35 +326,24 @@ const CVBuilder = ({onEditingStateChange}) => {
       if (!content) return alert("preview-content not found");
 
       const canvas = await html2canvas(content, {
-        scale: 8,
+        scale: 6,          // smaller, but still sharp
         backgroundColor: "#ffffff",
         useCORS: true,
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/jpeg", 0.85); // JPEG instead of PNG
 
-      // Convert pixels → mm
       const pxToMm = px => px * 0.264583;
+      const imgWidthMm = 210; // A4 width fixed
+      const imgHeightMm = pxToMm(canvas.height) * (210 / pxToMm(canvas.width));
 
-      // FIX: Set width to A4 (210mm)
-      const pdfWidthMm = 210;
-
-      // Convert canvas width to mm
-      const canvasWidthMm = pxToMm(canvas.width);
-      const canvasHeightMm = pxToMm(canvas.height);
-
-      // Scale the height proportionally to the fixed A4 width
-      const pdfHeightMm = (pdfWidthMm / canvasWidthMm) * canvasHeightMm;
-
-      // Now create a PDF page with EXACT scaled height
       const pdf = new jsPDF({
         orientation: "p",
         unit: "mm",
-        format: [pdfWidthMm, pdfHeightMm]
+        format: [imgWidthMm, imgHeightMm]
       });
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidthMm, pdfHeightMm);
-
+      pdf.addImage(imgData, "JPEG", 0, 0, imgWidthMm, imgHeightMm);
       pdf.save("my-cv.pdf");
 
     } catch (err) {
@@ -364,6 +353,7 @@ const CVBuilder = ({onEditingStateChange}) => {
 
     setIsGeneratingPDF(false);
   };
+
 
 
   const handleClosePrintView = () => {
