@@ -274,25 +274,51 @@ const CVPreview = ({ template, cvData, customization, currentPage = 1 }) => {
           </div>
         );
       
-      case 'projects':
-        const projects = data.projects || [{}];
+      case 'projects': {
+        const projects = (data.projects || [])
+          .filter(p => p && (p.name || p.title || p.description || p.technologies || p.dates));
+
+        if (projects.length === 0) return null;
+
         return (
           <div className="preview-section projects-section">
             <h2>Projects</h2>
-            {projects.map((project, index) => (
-              <div key={index} className="project-item">
-                <div className="project-header">
-                  <h3>{project.name || 'Project Name'}</h3>
-                  <span className="dates">{project.dates || 'Dates'}</span>
+
+            {projects.map((project, index) => {
+              const name = project.name || project.title;
+
+              return (
+                <div key={index} className="project-item">
+                  {(name || project.dates) && (
+                    <div className="project-header">
+                      {name && <h3>{name}</h3>}
+                      {project.dates && <span className="dates">{project.dates}</span>}
+                    </div>
+                  )}
+
+                  {project.description && (
+                    <div className="description preserve-line-breaks">
+                      {formatTextWithLineBreaks(project.description)}
+                    </div>
+                  )}
+
+                  {project.technologies && (
+                    <p className="technologies">Technologies: {project.technologies}</p>
+                  )}
+
+                  {project.link && (
+                    <p className="project-link">
+                      <a href={project.link} target="_blank" rel="noreferrer">
+                        {project.link}
+                      </a>
+                    </p>
+                  )}
                 </div>
-                <div className="description preserve-line-breaks">
-                  {project.description ? formatTextWithLineBreaks(project.description) : 'Project description...'}
-                </div>
-                <p className="technologies">Technologies: {project.technologies || 'Tech used'}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         );
+      }
       
       case 'languages':
         const languages = data.languages || [{name: 'English', level: 'Fluent'}, {name: 'Spanish', level: 'Intermediate'}];
